@@ -31,10 +31,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     }
   }
   
-  @IBAction func loginToUdacity() {
+  @IBAction func loginWithUdacity() {
     let udacityCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
-    let postSession = UdacityPostSession(credentials: udacityCredentials)
-    postSession.postSessionTask()
+    let udacityPostSession = UdacityPostSession(credentials: udacityCredentials)
+    udacityPostSession.postSessionTask { (success, completionMessage) -> () in
+      if !success {
+        let errorActionSheet = UIAlertController(title: "Error", message: completionMessage, preferredStyle: .ActionSheet)
+        let tryAgain = UIAlertAction(title: "Try Again?", style: .Default, handler: { Void in self.loginWithUdacity() })
+        errorActionSheet.addAction(tryAgain)
+        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        errorActionSheet.addAction(cancel)
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+          self.presentViewController(errorActionSheet, animated: true, completion: nil)
+        })
+      } else {
+        println("go to next view controller")
+      }
+    }
   }
   
   struct LinkAttributes {
