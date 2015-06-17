@@ -31,23 +31,39 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     }
   }
   
-  @IBAction func loginWithUdacity() {
+  @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+  
+  @IBAction func loginToUdacity() {
+    dismissKeyboard()
+    UIView.animateWithDuration(1.5, animations: { self.view.alpha = 0.3 })
+    activityIndicator.startAnimating()
     let udacityCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
     let udacityPostSession = UdacityPostSession(credentials: udacityCredentials)
     udacityPostSession.postSessionTask { (success, completionMessage) -> () in
       if !success {
         let errorActionSheet = UIAlertController(title: "Error", message: completionMessage, preferredStyle: .ActionSheet)
-        let tryAgain = UIAlertAction(title: "Try Again?", style: .Default, handler: { Void in self.loginWithUdacity() })
+        let tryAgain = UIAlertAction(title: "Try Again?", style: .Default, handler: { Void in self.loginToUdacity() })
         errorActionSheet.addAction(tryAgain)
         let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
+          self.activityIndicator.stopAnimating()
           self.presentViewController(errorActionSheet, animated: true, completion: nil)
+          self.view.alpha = 1.0
         })
       } else {
-        println("go to next view controller")
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+          let storyboard = UIStoryboard(name: "Main", bundle: nil)
+          let tabBarController = storyboard.instantiateViewControllerWithIdentifier("tabBarController") as! UITabBarController
+          self.presentViewController(tabBarController, animated: true, completion: nil)
+        })
       }
     }
+  }
+  
+  func dismissKeyboard() {
+    textFieldShouldReturn(emailTextField)
+    textFieldShouldReturn(passwordTextField)
   }
   
   struct LinkAttributes {

@@ -39,7 +39,7 @@ class UdacityPostSession {
     request.HTTPMethod = PostSessionConstants.httpMethod
     request.addValue(PostSessionConstants.applicationJSON, forHTTPHeaderField: PostSessionConstants.httpHeaderFieldAccept)
     request.addValue(PostSessionConstants.applicationJSON, forHTTPHeaderField: PostSessionConstants.httpHeaderFieldContentType)
-    var networkError: NSError? = nil
+    var networkError: NSError?
     request.HTTPBody = NSJSONSerialization.dataWithJSONObject(udacity, options: nil, error: &networkError)
     
     let session = NSURLSession.sharedSession()

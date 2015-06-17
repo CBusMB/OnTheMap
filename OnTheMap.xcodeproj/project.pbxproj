@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3209C6D31B3043ED000E8218 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3209C6D21B3043ED000E8218 /* MapViewController.swift */; };
+		3209C6D51B30446D000E8218 /* LocationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3209C6D41B30446D000E8218 /* LocationTableViewController.swift */; };
 		32C364D21B2A6701001EBDBF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C364D11B2A6701001EBDBF /* AppDelegate.swift */; };
 		32C364D71B2A6701001EBDBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32C364D51B2A6701001EBDBF /* Main.storyboard */; };
 		32C364D91B2A6701001EBDBF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32C364D81B2A6701001EBDBF /* Images.xcassets */; };
@@ -28,6 +30,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3209C6D21B3043ED000E8218 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		3209C6D41B30446D000E8218 /* LocationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTableViewController.swift; sourceTree = "<group>"; };
 		32C364CC1B2A6701001EBDBF /* OnTheMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnTheMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C364D01B2A6701001EBDBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32C364D11B2A6701001EBDBF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -82,6 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				32C364F11B2A7266001EBDBF /* LoginViewController.swift */,
+				3209C6D21B3043ED000E8218 /* MapViewController.swift */,
+				3209C6D41B30446D000E8218 /* LocationTableViewController.swift */,
 				32EE53761B2C4BFC0077286B /* UdacityUser.swift */,
 				32EE53781B2C590B0077286B /* UdacityPostSession.swift */,
 				32C364D11B2A6701001EBDBF /* AppDelegate.swift */,
@@ -220,7 +226,9 @@
 			files = (
 				32EE53791B2C590B0077286B /* UdacityPostSession.swift in Sources */,
 				32C364F21B2A7266001EBDBF /* LoginViewController.swift in Sources */,
+				3209C6D51B30446D000E8218 /* LocationTableViewController.swift in Sources */,
 				32EE53771B2C4BFC0077286B /* UdacityUser.swift in Sources */,
+				3209C6D31B3043ED000E8218 /* MapViewController.swift in Sources */,
 				32C364D21B2A6701001EBDBF /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
