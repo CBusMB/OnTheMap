@@ -10,7 +10,6 @@ import UIKit
 
 class LocationTableViewController: UITableViewController, UITableViewDelegate, UITableViewDataSource
 {
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     tableView.delegate = self
@@ -23,11 +22,6 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     return 10
   }
 
-  struct TableViewConstants {
-    static let cellIdentifier = "studentInformationCell"
-    static let pinImage = "pin"
-  }
-  
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier(TableViewConstants.cellIdentifier, forIndexPath: indexPath) as! UITableViewCell
     cell.imageView?.image = UIImage(named: TableViewConstants.pinImage)

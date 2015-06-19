@@ -11,4 +11,10 @@ import Foundation
 struct UdacityUser {
   let userName: String
   let password: String
+  lazy var udacityParameters: [String: [String: String]] = [UdacityLoginSessionConstants.udacity: [UdacityLoginSessionConstants.username: self.userName, UdacityLoginSessionConstants.password: self.password]]
+  
+  init(userName: String, password: String) {
+    self.userName = userName
+    self.password = password
+  }
 }

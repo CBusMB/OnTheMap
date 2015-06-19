@@ -35,14 +35,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBAction func loginToUdacity() {
     dismissKeyboard()
-    UIView.animateWithDuration(1.5, animations: { self.view.alpha = 0.3 })
+    UIView.animateWithDuration(1.3, animations: { self.view.alpha = 0.5 })
     activityIndicator.startAnimating()
-    let udacityCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
-    let udacityPostSession = UdacityPostSession(credentials: udacityCredentials)
-    udacityPostSession.postSessionTask { (success, completionMessage) -> () in
+    var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
+    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) -> () in
       if !success {
         let errorActionSheet = UIAlertController(title: "Error", message: completionMessage, preferredStyle: .ActionSheet)
-        let tryAgain = UIAlertAction(title: "Try Again?", style: .Default, handler: { Void in self.loginToUdacity() })
+        let tryAgain = UIAlertAction(title: "Resubmit?", style: .Default, handler: { Void in self.loginToUdacity() })
         errorActionSheet.addAction(tryAgain)
         let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
