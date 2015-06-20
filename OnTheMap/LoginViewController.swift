@@ -40,10 +40,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
     UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) -> () in
       if !success {
-        let errorActionSheet = UIAlertController(title: ErrorMessages.genericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
-        let tryAgain = UIAlertAction(title: ActionSheetConstants.alertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
+        let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
+        let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
         errorActionSheet.addAction(tryAgain)
-        let cancel = UIAlertAction(title: ActionSheetConstants.alertActionTitleCancel, style: .Cancel, handler: nil)
+        let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
           self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })

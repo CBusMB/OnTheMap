@@ -9,61 +9,67 @@
 import Foundation
 
 struct StudentLocationsGetSessionConstants {
-  static let parseApplicationID = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
-  static let headerFieldForApplicationID = "X-Parse-Application-Id"
-  static let restAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
-  static let headerFieldForREST = "X-Parse-REST-API-Key"
-  static let parseURL = "https://api.parse.com/1/classes/StudentLocation"
-  static let results = "results"
-  static let uniqueKey = "uniqueKey"
-  static let firstName = "firstName"
-  static let lastName = "lastName"
-  static let mapString = "mapString"
-  static let mediaURL = "mediaURL"
-  static let latitude = "latitude"
-  static let longitude = "longitude"
+  static let ParseApplicationID = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
+  static let HeaderFieldForApplicationID = "X-Parse-Application-Id"
+  static let RestAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
+  static let HeaderFieldForREST = "X-Parse-REST-API-Key"
+  static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
+  static let Results = "results"
+  static let UniqueKey = "uniqueKey"
+  static let FirstName = "firstName"
+  static let LastName = "lastName"
+  static let MapString = "mapString"
+  static let MediaURL = "mediaURL"
+  static let Latitude = "latitude"
+  static let Longitude = "longitude"
 }
 
 struct UdacityLoginSessionConstants {
-  static let udacitySessionURL = "https://www.udacity.com/api/session"
-  static let httpMethod = "POST"
-  static let applicationJSON = "application/json"
-  static let httpHeaderFieldAccept = "Accept"
-  static let httpHeaderFieldContentType = "Content-Type"
-  static let username = "username"
-  static let password = "password"
-  static let udacity = "udacity"
+  static let UdacitySessionURL = "https://www.udacity.com/api/session"
+  static let HttpMethod = "POST"
+  static let ApplicationJSON = "application/json"
+  static let HttpHeaderFieldAccept = "Accept"
+  static let HttpHeaderFieldContentType = "Content-Type"
+  static let Username = "username"
+  static let Password = "password"
+  static let Udacity = "udacity"
 }
 
 struct ErrorMessages {
-  static let errorCode400 = 400
-  static let errorCode403 = 403
-  static let errorCodeMessage = "Account not found or invalid credentials"
-  static let networkErrorMessage = "Network Error"
-  static let jsonErrorMessage = "Error, could not read response from server"
-  static let genericErrorMessage = "Error"
+  static let ErrorCode400 = 400
+  static let ErrorCode403 = 403
+  static let ErrorCodeMessage = "Account not found or invalid credentials"
+  static let NetworkErrorMessage = "Network Error"
+  static let JsonErrorMessage = "Error, could not read response from server"
+  static let GenericErrorMessage = "Error"
 }
 
 struct TableViewConstants {
-  static let cellIdentifier = "studentInformationCell"
+  static let CellIdentifier = "studentInformationCell"
 }
 
 struct NavigationItemConstants {
-  static let logout = "Logout"
+  static let Logout = "Logout"
 }
 
 struct ImageConstants {
-  static let pinImage = "pin"
+  static let PinImage = "pin"
 }
 
 struct MapViewConstants {
-  static let reuseIdentifier = "pin"
+  static let ReuseIdentifier = "pin"
 }
 
 struct ActionSheetConstants {
-  static let alertActionTitleConfirmation = "Confirmation Required"
-  static let alertActionTitleLogout = "Logout"
-  static let alertActionMessageLogout = "Are you sure you want to logout?"
-  static let alertActionTitleResubmit = "Resubmit?"
-  static let alertActionTitleCancel = "Cancel"
+  static let AlertActionTitleConfirmation = "Confirmation Required"
+  static let AlertActionTitleLogout = "Logout"
+  static let AlertActionMessageLogout = "Are you sure you want to logout?"
+  static let AlertActionTitleResubmit = "Resubmit?"
+  static let AlertActionTitleCancel = "Cancel"
+  static let AlertActionTitleError = "Error"
+}
+
+struct SegueIdentifierConstants {
+  static let MapToPostSegue = "mapToPost"
+  static let TableToPostSegue = "tableToPost"
 }

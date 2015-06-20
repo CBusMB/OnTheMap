@@ -16,14 +16,15 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
-     mapView.delegate = self 
+      mapView.mapType = .Satellite
+      mapView.delegate = self
     }
   }
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationItemConstants.logout, style: .Plain, target: self, action: "logout")
-    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.pinImage), style: .Plain, target: self, action: "dropPin")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationItemConstants.Logout, style: .Plain, target: self, action: "logout")
+    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.PinImage), style: .Plain, target: self, action: "dropPin")
     let reload = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "getStudentLocations")
     var rightBarButtonItems = [reload, pin]
     navigationItem.rightBarButtonItems = rightBarButtonItems
@@ -38,8 +39,8 @@ class MapViewController: UIViewController, MKMapViewDelegate
     
     StudentLocationsGetSession.getStudentLocationsTask { (success, completionMessage) -> () in
       if !success {
-        let errorActionSheet = UIAlertController(title: "Error", message: completionMessage, preferredStyle: .ActionSheet)
-        let cancel = UIAlertAction(title: ActionSheetConstants.alertActionTitleCancel, style: .Cancel, handler: nil)
+        let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .ActionSheet)
+        let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
           self.presentViewController(errorActionSheet, animated: true, completion: nil)
@@ -64,17 +65,15 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func dropPin() {
-    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-    let postInformationViewController = storyboard.instantiateViewControllerWithIdentifier("postInformationViewController") as! PostInformationViewController
-    navigationController?.pushViewController(postInformationViewController, animated: true)
+    performSegueWithIdentifier(SegueIdentifierConstants.MapToPostSegue, sender: self)
   }
   
   func logout() {
-    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.alertActionTitleConfirmation, message: ActionSheetConstants.alertActionMessageLogout, preferredStyle: .ActionSheet)
-    let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.alertActionTitleLogout, style: .Destructive, handler: { Void in
+    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .ActionSheet)
+    let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil) })
     logoutActionSheet.addAction(logoutConfirmed)
-    let cancel = UIAlertAction(title: ActionSheetConstants.alertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
     presentViewController(logoutActionSheet, animated: true, completion: nil)
   }
@@ -82,7 +81,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   // MARK: - MKMapViewDelegate
   
   func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
-    let reuseIdentifier = MapViewConstants.reuseIdentifier
+    let reuseIdentifier = MapViewConstants.ReuseIdentifier
     var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseIdentifier) as? MKPinAnnotationView
     
     if pinAnnotationView == nil {

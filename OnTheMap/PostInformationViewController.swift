@@ -9,12 +9,27 @@
 import UIKit
 import MapKit
 
-class PostInformationViewController: UIViewController, MKMapViewDelegate
+class PostInformationViewController: UIViewController, MKMapViewDelegate, UITextViewDelegate
 {
+  @IBOutlet weak var mapView: MKMapView! {
+    didSet {
+      mapView.hidden = true
+      mapView.delegate = self
+    }
+  }
 
+  @IBOutlet weak var locationQuestionTopLabel: UILabel!
+  @IBOutlet weak var locationQuestionMiddleLabel: UILabel!
+  @IBOutlet weak var locationQuestionBottomLabel: UILabel!
+  
+  @IBOutlet weak var topView: UIView!
+  @IBOutlet weak var bottomView: UIView!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-    navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel", style: .Plain, target: self , action: "cancelPost")
+  }
+  
+  @IBAction func cancel(sender: UIButton) {
   }
   
   
