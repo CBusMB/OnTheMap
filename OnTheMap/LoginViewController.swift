@@ -35,29 +35,32 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBAction func loginToUdacity() {
     dismissKeyboard()
-    UIView.animateWithDuration(1.3, animations: { self.view.alpha = 0.5 })
+    UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
     UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) -> () in
       if !success {
-        let errorActionSheet = UIAlertController(title: "Error", message: completionMessage, preferredStyle: .ActionSheet)
-        let tryAgain = UIAlertAction(title: "Resubmit?", style: .Default, handler: { Void in self.loginToUdacity() })
+        let errorActionSheet = UIAlertController(title: ErrorMessages.genericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
+        let tryAgain = UIAlertAction(title: ActionSheetConstants.alertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
         errorActionSheet.addAction(tryAgain)
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        let cancel = UIAlertAction(title: ActionSheetConstants.alertActionTitleCancel, style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-          self.activityIndicator.stopAnimating()
-          self.presentViewController(errorActionSheet, animated: true, completion: nil)
-          self.view.alpha = 1.0
+          self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
         })
       } else {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
           let storyboard = UIStoryboard(name: "Main", bundle: nil)
           let tabBarController = storyboard.instantiateViewControllerWithIdentifier("tabBarController") as! UITabBarController
-          self.presentViewController(tabBarController, animated: true, completion: nil)
+          self.presentViewController(tabBarController, animated: true, completion: { Void in self.resetUI() })
         })
       }
     }
+  }
+  
+  func resetUI() {
+    activityIndicator.stopAnimating()
+    view.alpha = 1.0
   }
   
   func dismissKeyboard() {

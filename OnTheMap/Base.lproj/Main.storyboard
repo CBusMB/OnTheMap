@@ -79,7 +79,7 @@
                                 <dataDetectorType key="dataDetectorTypes" link="YES"/>
                             </textView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="WAn-pT-5VT">
-                                <rect key="frame" x="282" y="281" width="37" height="37"/>
+                                <rect key="frame" x="282" y="361" width="37" height="37"/>
                             </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.56663307620778136" blue="0.19504052633865165" alpha="1" colorSpace="calibratedRGB"/>
@@ -93,16 +93,16 @@
                             <constraint firstItem="xoV-hZ-noh" firstAttribute="leading" secondItem="Mqo-5u-X4u" secondAttribute="leading" id="R3n-22-N4l"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="RhB-ki-3Tg"/>
                             <constraint firstItem="GEJ-9R-GQo" firstAttribute="centerX" secondItem="8am-Xv-M70" secondAttribute="centerX" id="SdW-Ci-kEd"/>
-                            <constraint firstAttribute="centerX" secondItem="WAn-pT-5VT" secondAttribute="centerX" constant="-0.5" id="UbH-pK-knf"/>
                             <constraint firstItem="Mqo-5u-X4u" firstAttribute="top" secondItem="xoV-hZ-noh" secondAttribute="bottom" constant="53" id="cvQ-9d-sX8"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="fcC-qm-V1f"/>
                             <constraint firstItem="xoV-hZ-noh" firstAttribute="top" secondItem="Tyr-F3-knz" secondAttribute="bottom" constant="8" id="gwP-Mn-5Jr"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="trailing" secondItem="xoV-hZ-noh" secondAttribute="trailing" id="iIj-O2-Yyf"/>
-                            <constraint firstAttribute="centerY" secondItem="WAn-pT-5VT" secondAttribute="centerY" constant="0.5" id="ndX-4p-NA2"/>
                             <constraint firstItem="8am-Xv-M70" firstAttribute="top" secondItem="GEJ-9R-GQo" secondAttribute="bottom" constant="8" symbolic="YES" id="o76-4o-gIR"/>
+                            <constraint firstItem="WAn-pT-5VT" firstAttribute="top" secondItem="xoV-hZ-noh" secondAttribute="bottom" constant="8" id="ohK-H4-PcK"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="top" secondItem="8am-Xv-M70" secondAttribute="bottom" constant="51" id="rbg-No-fbY"/>
                             <constraint firstItem="GEJ-9R-GQo" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" symbolic="YES" id="tyI-f2-TJ3"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="leading" secondItem="xoV-hZ-noh" secondAttribute="leading" id="v3P-Gr-8LA"/>
+                            <constraint firstAttribute="centerX" secondItem="WAn-pT-5VT" secondAttribute="centerX" constant="-0.5" id="wXh-fE-DTI"/>
                             <constraint firstItem="8am-Xv-M70" firstAttribute="centerX" secondItem="Tyr-F3-knz" secondAttribute="centerX" id="y9t-YZ-X17"/>
                         </constraints>
                     </view>
@@ -134,13 +134,29 @@
                             </tableViewCell>
                         </prototypes>
                     </tableView>
-                    <navigationItem key="navigationItem" title="On The Map" id="sFr-HM-Hdf">
-                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="JCE-ub-aXz"/>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="On The Map" id="sFr-HM-Hdf"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TZx-Ug-uZo" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2833" y="728"/>
+        </scene>
+        <!--Post Information View Controller-->
+        <scene sceneID="Ezt-K4-fvF">
+            <objects>
+                <viewController storyboardIdentifier="postInformationViewController" id="g9l-G8-dX9" customClass="PostInformationViewController" customModule="OnTheMap" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ixi-bp-JCu"/>
+                        <viewControllerLayoutGuide type="bottom" id="bGL-Ji-38B"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="llM-Ef-gR0">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yE2-SF-VAO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3589" y="337"/>
         </scene>
         <!--On The Map-->
         <scene sceneID="XRd-NK-3LA">
@@ -160,9 +176,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" title="On The Map" id="kbC-i3-NS0">
-                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="5dx-mD-dzT"/>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="On The Map" id="kbC-i3-NS0"/>
                     <connections>
                         <outlet property="mapView" destination="1qx-HS-R5B" id="LmT-kE-h83"/>
                     </connections>

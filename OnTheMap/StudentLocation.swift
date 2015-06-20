@@ -17,3 +17,4 @@ struct StudentLocation {
   let mediaURL: String
   let coordinate: CLLocationCoordinate2D
 }
+

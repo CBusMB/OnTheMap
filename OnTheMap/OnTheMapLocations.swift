@@ -31,4 +31,8 @@ class OnTheMapLocations
   func addLocationToCollection(location: StudentLocation) {
     locations.append(location)
   }
+  
+  func removeAllLocations() {
+    locations.removeAll(keepCapacity: false)
+  }
 }

@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import MapKit
 
 class StudentLocationsGetSession
 {
-  class func getStudentLocationsTask(locationsCompletionHandler: (success: Bool, completionMessage: String) -> ()) {
+  class func getStudentLocationsTask(locationsCompletionHandler: (success: Bool, completionMessage: String?) -> ()) {
     let request = NSMutableURLRequest(URL: NSURL(string: StudentLocationsGetSessionConstants.parseURL)!)
     request.addValue(StudentLocationsGetSessionConstants.parseApplicationID, forHTTPHeaderField: StudentLocationsGetSessionConstants.headerFieldForApplicationID)
     request.addValue(StudentLocationsGetSessionConstants.restAPIKey, forHTTPHeaderField: StudentLocationsGetSessionConstants.headerFieldForREST)
@@ -24,11 +25,10 @@ class StudentLocationsGetSession
         if jsonError != nil {
           locationsCompletionHandler(success: false, completionMessage: ErrorMessages.jsonErrorMessage)
         } else {
-          // println("\(jsonData)")
           if let parsedJSON = jsonData {
-            self.assignRelevantLocationInformation(fromDataSource: parsedJSON)
-            let test = parsedJSON["results"]![0]["firstName"] as! String
-            println("\(test)")
+            let results = parsedJSON[StudentLocationsGetSessionConstants.results] as! [NSDictionary]
+            self.createOnTheMapLocations(fromDataSource: results)
+            locationsCompletionHandler(success: true, completionMessage: nil)
           }
         }
       }
@@ -36,9 +36,21 @@ class StudentLocationsGetSession
     task.resume()
   }
   
-  class func assignRelevantLocationInformation(fromDataSource studentNamesAndLocations: NSDictionary) {
+  class func createOnTheMapLocations(fromDataSource studentNamesAndLocations: [NSDictionary]) {
+    let locations = OnTheMapLocations.sharedCollection
     for nameAndLocation in studentNamesAndLocations {
-      // nameAndLocation["firstName"]
+      let locationUniqueKey = nameAndLocation[StudentLocationsGetSessionConstants.uniqueKey] as! String
+      let locationFirstName = nameAndLocation[StudentLocationsGetSessionConstants.firstName] as! String
+      let locationLastName = nameAndLocation[StudentLocationsGetSessionConstants.lastName] as! String
+      let locationMapString = nameAndLocation[StudentLocationsGetSessionConstants.mapString] as! String
+      let locationMediaURL = nameAndLocation[StudentLocationsGetSessionConstants.mediaURL] as! String
+      let locationLatitude = CLLocationDegrees(nameAndLocation[StudentLocationsGetSessionConstants.latitude] as! Double)
+      let locationLongitude = CLLocationDegrees(nameAndLocation[StudentLocationsGetSessionConstants.longitude] as! Double)
+      let locationCoordinate = CLLocationCoordinate2D(latitude: locationLatitude, longitude: locationLongitude)
+      
+      let studentLocation = StudentLocation(uniqueKey: locationUniqueKey, firstName: locationFirstName, lastName: locationLastName, mapString: locationMapString, mediaURL: locationMediaURL, coordinate: locationCoordinate)
+      
+      locations.addLocationToCollection(studentLocation)
     }
   }
   

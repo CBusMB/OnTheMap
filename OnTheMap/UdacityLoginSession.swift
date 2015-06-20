@@ -10,7 +10,7 @@ import Foundation
 
 class UdacityLoginSession {
   
-  class func udacityLoginTask(udacityParameters: [String: [String: String]], loginCompletionHandler: (success: Bool, completionMessage: String) -> ()) {
+  class func udacityLoginTask(udacityParameters: [String: [String: String]], loginCompletionHandler: (success: Bool, completionMessage: String?) -> ()) {
     let request = NSMutableURLRequest(URL: NSURL(string: UdacityLoginSessionConstants.udacitySessionURL)!)
     request.HTTPMethod = UdacityLoginSessionConstants.httpMethod
     request.addValue(UdacityLoginSessionConstants.applicationJSON, forHTTPHeaderField: UdacityLoginSessionConstants.httpHeaderFieldAccept)
@@ -23,20 +23,16 @@ class UdacityLoginSession {
       if downloadError != nil {
         loginCompletionHandler(success: false, completionMessage: ErrorMessages.networkErrorMessage)
       } else {
-        let subsetData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) // subset response data!
-        println(NSString(data: subsetData, encoding: NSUTF8StringEncoding))
+        let subsetData = data.subdataWithRange(NSMakeRange(5, data.length - 5))
         var jsonError: NSError?
         let jsonData = NSJSONSerialization.JSONObjectWithData(subsetData, options: .MutableLeaves, error: &jsonError) as? NSDictionary
         if jsonError != nil {
-          println(jsonError?.localizedDescription)
-          let jsonErrorString = NSString(data: subsetData, encoding: NSUTF8StringEncoding)
-          println("Error could not parse JSON: '\(jsonErrorString)'")
           loginCompletionHandler(success: false, completionMessage: ErrorMessages.jsonErrorMessage)
         } else {
           if let parsedJSON = jsonData {
             if let account = parsedJSON["account"] as? NSDictionary {
               let loggedIn = account["registered"] as! Bool
-              loginCompletionHandler(success: loggedIn, completionMessage: UdacityLoginSessionConstants.successfulLoginMessage)
+              loginCompletionHandler(success: loggedIn, completionMessage: nil)
             } else {
               if parsedJSON["status"] as! Int == ErrorMessages.errorCode403 || parsedJSON["status"] as! Int == ErrorMessages.errorCode400 {
                 loginCompletionHandler(success: false, completionMessage: ErrorMessages.errorCodeMessage)
