@@ -63,10 +63,11 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     performSegueWithIdentifier(SegueIdentifierConstants.TableToPostSegue, sender: self)
   }
   
-  func logout() {    
+  func logout() {
     let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .ActionSheet)
     let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
-      self.dismissViewControllerAnimated(true, completion: nil) })
+      self.dismissViewControllerAnimated(true, completion: nil)
+      self.mapLocations.removeAllLocations() })
     logoutActionSheet.addAction(logoutConfirmed)
     let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)

@@ -223,10 +223,10 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="dlG-OK-aOu">
                                 <rect key="frame" x="0.0" y="189" width="600" height="411"/>
                             </mapView>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="O5g-Ez-BvX">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O5g-Ez-BvX">
                                 <rect key="frame" x="0.0" y="477" width="600" height="123"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ze0-yd-Ipa">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ze0-yd-Ipa">
                                         <rect key="frame" x="240" y="47" width="121" height="30"/>
                                         <color key="backgroundColor" red="0.71957605570000005" green="0.90691656129999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
@@ -242,31 +242,50 @@
                                                 </fragment>
                                             </attributedString>
                                         </state>
+                                        <connections>
+                                            <action selector="searchForStudentLocation:" destination="g9l-G8-dX9" eventType="touchUpInside" id="lK4-fF-B1M"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="Ze0-yd-Ipa" secondAttribute="bottom" constant="46" id="1Vm-3R-mNu"/>
                                     <constraint firstAttribute="centerX" secondItem="Ze0-yd-Ipa" secondAttribute="centerX" constant="-0.5" id="HUb-mH-Joq"/>
-                                    <constraint firstItem="Ze0-yd-Ipa" firstAttribute="centerX" secondItem="O5g-Ez-BvX" secondAttribute="centerX" id="J1n-c6-2Yz"/>
-                                    <constraint firstAttribute="centerX" secondItem="Ze0-yd-Ipa" secondAttribute="centerX" constant="-0.5" id="dWJ-QE-Ec2"/>
                                     <constraint firstItem="Ze0-yd-Ipa" firstAttribute="top" secondItem="O5g-Ez-BvX" secondAttribute="top" constant="47" id="mdn-ti-AeC"/>
                                 </constraints>
                             </view>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OVT-xe-9ub">
+                                <rect key="frame" x="180" y="208" width="240" height="128"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="D7H-Ex-eaE"/>
+                                </constraints>
+                                <attributedString key="attributedText">
+                                    <fragment content="Enter your location here.">
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="HelveticaNeue"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="trailing" secondItem="STz-1m-Qz8" secondAttribute="trailing" id="2IS-Y3-OQl"/>
+                            <constraint firstItem="O5g-Ez-BvX" firstAttribute="leading" secondItem="dlG-OK-aOu" secondAttribute="leading" id="Czm-Sg-XX2"/>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="top" secondItem="STz-1m-Qz8" secondAttribute="bottom" constant="-11" id="F35-qn-0W2"/>
                             <constraint firstItem="Ze0-yd-Ipa" firstAttribute="top" secondItem="dlG-OK-aOu" secondAttribute="bottom" constant="-76" id="HvL-wK-Zqi"/>
                             <constraint firstItem="STz-1m-Qz8" firstAttribute="top" secondItem="llM-Ef-gR0" secondAttribute="top" id="LZ9-xE-ahh"/>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="bottom" secondItem="bGL-Ji-38B" secondAttribute="top" id="Qf2-TV-WSv"/>
+                            <constraint firstItem="OVT-xe-9ub" firstAttribute="top" secondItem="STz-1m-Qz8" secondAttribute="bottom" constant="8" id="QxL-nV-y96"/>
                             <constraint firstAttribute="centerX" secondItem="STz-1m-Qz8" secondAttribute="centerX" id="Ydt-nY-JRG"/>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="leading" secondItem="STz-1m-Qz8" secondAttribute="leading" id="dWd-5a-ZCg"/>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="width" secondItem="O5g-Ez-BvX" secondAttribute="width" id="e5F-ve-eaX"/>
+                            <constraint firstItem="O5g-Ez-BvX" firstAttribute="top" secondItem="OVT-xe-9ub" secondAttribute="bottom" constant="141" id="ezA-FL-ehQ"/>
+                            <constraint firstItem="OVT-xe-9ub" firstAttribute="centerX" secondItem="STz-1m-Qz8" secondAttribute="centerX" id="gT8-65-G1v"/>
                             <constraint firstItem="STz-1m-Qz8" firstAttribute="leading" secondItem="llM-Ef-gR0" secondAttribute="leading" id="gUv-CY-F8i"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="STz-1m-Qz8" secondAttribute="trailing" constant="-16" id="rYp-QR-HzV"/>
-                            <constraint firstItem="STz-1m-Qz8" firstAttribute="leading" secondItem="llM-Ef-gR0" secondAttribute="leadingMargin" constant="-16" id="sIg-NC-Ubt"/>
                             <constraint firstAttribute="trailing" secondItem="STz-1m-Qz8" secondAttribute="trailing" id="tM2-FI-sLW"/>
                         </constraints>
                     </view>
@@ -275,7 +294,9 @@
                         <outlet property="locationQuestionBottomLabel" destination="f0W-OX-XJV" id="1zF-z9-Wu7"/>
                         <outlet property="locationQuestionMiddleLabel" destination="sW0-xb-GLg" id="IVZ-Cu-O5g"/>
                         <outlet property="locationQuestionTopLabel" destination="30D-Z7-E5P" id="hsX-TX-hVo"/>
+                        <outlet property="locationTextView" destination="OVT-xe-9ub" id="4EY-kg-hq4"/>
                         <outlet property="mapView" destination="dlG-OK-aOu" id="b8d-Sh-OxS"/>
+                        <outlet property="searchAndSubmitButton" destination="Ze0-yd-Ipa" id="wCY-Nt-mpZ"/>
                         <outlet property="topView" destination="STz-1m-Qz8" id="DxD-Ny-Ie9"/>
                     </connections>
                 </viewController>

@@ -71,7 +71,9 @@ class MapViewController: UIViewController, MKMapViewDelegate
   func logout() {
     let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .ActionSheet)
     let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
-      self.dismissViewControllerAnimated(true, completion: nil) })
+      self.dismissViewControllerAnimated(true, completion: nil)
+    self.mapLocations.removeAllLocations()
+    self.annotations.removeAll(keepCapacity: false) })
     logoutActionSheet.addAction(logoutConfirmed)
     let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
@@ -89,7 +91,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
       pinAnnotationView!.canShowCallout = true
       pinAnnotationView!.pinColor = .Red
       pinAnnotationView!.rightCalloutAccessoryView = UIButton.buttonWithType(.DetailDisclosure) as! UIButton
-      pinAnnotationView?.animatesDrop = true
+      pinAnnotationView?.animatesDrop = false
     }
     else {
       pinAnnotationView!.annotation = annotation

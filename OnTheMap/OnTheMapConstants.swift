@@ -42,6 +42,7 @@ struct ErrorMessages {
   static let NetworkErrorMessage = "Network Error"
   static let JsonErrorMessage = "Error, could not read response from server"
   static let GenericErrorMessage = "Error"
+  static let GeocodingErrorMessage = "Could not find location, please try again"
 }
 
 struct TableViewConstants {
@@ -67,6 +68,8 @@ struct ActionSheetConstants {
   static let AlertActionTitleResubmit = "Resubmit?"
   static let AlertActionTitleCancel = "Cancel"
   static let AlertActionTitleError = "Error"
+  static let AlertActionTitleMultipleMatches = "Multiple matches found."
+  static let AlertActionMessageChooseLocation = "Choose the best match"
 }
 
 struct SegueIdentifierConstants {

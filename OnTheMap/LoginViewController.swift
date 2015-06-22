@@ -25,8 +25,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   @IBOutlet weak var signUpTextView: UITextView! {
     didSet {
       signUpTextView.delegate = self
-      signUpTextView.linkTextAttributes = LinkAttributes.link
-      let signUpLink = NSAttributedString(string: LinkAttributes.signUpLinkString, attributes: LinkAttributes.attributes)
+      signUpTextView.linkTextAttributes = LinkAttributes.Link
+      let signUpLink = NSAttributedString(string: LinkAttributes.SignUpLinkString, attributes: LinkAttributes.Attributes)
       signUpTextView.attributedText = signUpLink
     }
   }
@@ -40,14 +40,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
     UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) -> () in
       if !success {
-        let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
-        let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
-        errorActionSheet.addAction(tryAgain)
-        let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
-        errorActionSheet.addAction(cancel)
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-          self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
-        })
+        if let message = completionMessage {
+          self.presentErrorActionSheet(message: message)
+        }
       } else {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
           let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -56,6 +51,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
         })
       }
     }
+  }
+  
+  func presentErrorActionSheet(message completionMessage: String) {
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
+    let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
+    errorActionSheet.addAction(tryAgain)
+    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    errorActionSheet.addAction(cancel)
+    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
+    })
   }
   
   func resetUI() {
@@ -69,16 +75,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   }
   
   struct LinkAttributes {
-    static let udacityURL = "https://www.udacity.com"
-    static let attributes = [
+    static let UdacityURL = "https://www.google.com/url?q=https%3A%2F%2Fwww.udacity.com%2Faccount%2Fauth%23!%2Fsignin&sa=D&sntz=1&usg=AFQjCNERmggdSkRb9MFkqAW_5FgChiCxAQ"
+    static let Attributes = [
       NSForegroundColorAttributeName: UIColor.whiteColor(),
       NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 22)!,
-      NSLinkAttributeName: udacityURL
+      NSLinkAttributeName: UdacityURL
     ]
-    static let link = [
-      NSLinkAttributeName: udacityURL
+    static let Link = [
+      NSLinkAttributeName: UdacityURL
     ]
-    static let signUpLinkString = "Don't have an account? Sign up"
+    static let SignUpLinkString = "Don't have an account? Sign up"
   }
 
   // MARK: Lifecycle
