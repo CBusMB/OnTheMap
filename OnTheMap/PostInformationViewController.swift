@@ -17,7 +17,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       mapView.delegate = self
     }
   }
-
+  
   @IBOutlet weak var locationQuestionTopLabel: UILabel!
   @IBOutlet weak var locationQuestionMiddleLabel: UILabel!
   @IBOutlet weak var locationQuestionBottomLabel: UILabel!
@@ -27,24 +27,52 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   @IBOutlet weak var locationTextView: UITextView! {
     didSet {
-      let singleTap = UITapGestureRecognizer(target: self, action: "singleTap:")
-      view.addGestureRecognizer(singleTap)
-      view.userInteractionEnabled = true
+      locationTextView.delegate = self
+      let placeholderText = NSAttributedString(string: UserLocationTextAttributes.placeholder, attributes: UserLocationTextAttributes.Attributes)
+      locationTextView.attributedText = placeholderText
     }
   }
   
-  @IBOutlet weak var searchAndSubmitButton: UIButton! {
+  struct UserLocationTextAttributes {
+    static let Attributes = [
+      NSForegroundColorAttributeName: UIColor.blueColor(),
+      NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 22)!
+    ]
+    static let placeholder = "Enter your location here"
+  }
+
+  @IBOutlet weak var searchButton: UIButton! {
     didSet {
-      searchAndSubmitButton.layer.cornerRadius = 3.5
-      searchAndSubmitButton.layer.borderWidth = 1.0
-      searchAndSubmitButton.enabled = false
+      searchButton.layer.cornerRadius = 3.5
+      searchButton.layer.borderWidth = 1.0
+      searchButton.enabled = false
     }
   }
+  @IBOutlet weak var submitButton: UIButton! {
+    didSet {
+      submitButton.hidden = true
+    }
+  }
+  
+  // MARK: Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
+    let singleTap = UITapGestureRecognizer(target: self, action: "singleTap:")
+    view.addGestureRecognizer(singleTap)
+    view.userInteractionEnabled = true
   }
   
-  @IBAction func searchForStudentLocation(sender: AnyObject) {
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    subscribeToKeyboardNotifications()
+  }
+  
+  override func viewWillDisappear(animated: Bool) {
+    super.viewWillDisappear(animated)
+    unsubscribeFromKeyboardNotifications()
+  }
+  
+  @IBAction func searchForStudentLocation() {
     geocodeUserLocation()
   }
   
@@ -55,69 +83,129 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         self.presentErrorActionSheet()
       } else {
         if let placemarks = placemark as? [CLPlacemark] {
-          self.validateUserLocations(fromLocationsInPlacemarks: placemarks)
+          if placemarks.count > 1 {
+            self.presentLocationChoiceActionSheet(forLocations: placemarks)
+          } else {
+            let location = placemarks[0].location
+            self.displayUserLocationMap(location)
+          }
+        } else {
+          // handle downcast error
         }
       }
-      
     })
   }
   
-  private func validateUserLocations(fromLocationsInPlacemarks placemarks: [CLPlacemark]) {
-    if placemarks.count > 1 {
-      presentLocationChoiceActionSheet(forLocations: placemarks)
-    } else {
-      let location = placemarks[0].location
-      displayUserLocationMap(location)
-    }
+  func displayUserLocationMap(location: CLLocation) {
+    updateUIForMapView()
+    let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.4, 0.4))
+    mapView.setRegion(mapRegion, animated: true)
   }
   
-  func displayUserLocationMap(location: CLLocation) {
-    
+  func updateUIForMapView() {
+    mapView.hidden = false
+    bottomView.hidden = true
+    locationTextView.hidden = true
+    mapView.addSubview(submitButton)
+    mapView.bringSubviewToFront(submitButton)
+    submitButton.hidden = false
+    searchButton.hidden = true
   }
   
   func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
-    // display the top 3 location mataches to the user and let them choose the best one
-    let firstCityName = placemarks[0].locality
-    let secondCityName = placemarks[1].locality
-    let thirdCityName = placemarks[2].locality
+    // display (up to) the top 3 location mataches to the user and let them choose the best one
     let locationChoiceActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleMultipleMatches, message: ActionSheetConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
-    let firstLocation = UIAlertAction(title: firstCityName, style: .Default, handler: { Void in
+    
+    let firstLocationAddressLines = placemarks[0].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+    let firstLocation = UIAlertAction(title: firstLocationAddressLines[0], style: .Default, handler: { Void in
       let location =  placemarks[0].location
       self.displayUserLocationMap(location) })
     locationChoiceActionSheet.addAction(firstLocation)
-    let secondLocation = UIAlertAction(title: secondCityName, style: .Default, handler: { Void in
+    
+    let secondLocationAddressLines = placemarks[1].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+    let secondLocation = UIAlertAction(title: secondLocationAddressLines[0], style: .Default, handler: { Void in
       let location =  placemarks[1].location
       self.displayUserLocationMap(location) })
     locationChoiceActionSheet.addAction(secondLocation)
-    let thirdLocation = UIAlertAction(title: thirdCityName, style: .Default, handler: { Void in
-      let location =  placemarks[2].location
-      self.displayUserLocationMap(location) })
-    locationChoiceActionSheet.addAction(thirdLocation)
+    
+    if placemarks.count > 2 {
+      let thirdLocationAddressLines = placemarks[2].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+      let thirdLocation = UIAlertAction(title: thirdLocationAddressLines[0], style: .Default, handler: { Void in
+        let location =  placemarks[2].location
+        self.displayUserLocationMap(location) })
+      locationChoiceActionSheet.addAction(thirdLocation)
+    }
+    
     let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     locationChoiceActionSheet.addAction(cancel)
+    
+    presentViewController(locationChoiceActionSheet, animated: true, completion: nil)
   }
   
   func presentErrorActionSheet() {
-    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.NetworkErrorMessage, preferredStyle: .ActionSheet)
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .ActionSheet)
     let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
     let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     errorActionSheet.addAction(cancel)
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-      self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
-    })
+    presentViewController(errorActionSheet, animated: true, completion:nil)
   }
   
   func resetUI() {
     
   }
-
+  
   @IBAction func cancel(sender: UIButton) {
     dismissViewControllerAnimated(true, completion: nil)
   }
   
-  // MARK: MKMapViewDelegate
+  // MARK: MKMapView
   
+  
+  // MARK: TextView Delegate
+  func textViewShouldEndEditing(textView: UITextView) -> Bool {
+    locationTextView.resignFirstResponder()
+    searchButton.enabled = true
+    return true
+  }
+  
+  func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+    textView.text = String()
+    return true
+  }
+  
+  func keyboardWillShow(notification: NSNotification) {
+    self.view.frame.origin.y -= (keyboardHeight(notification) / 2)
+  }
+  
+  func keyboardWillHide(notification: NSNotification) {
+    self.view.frame.origin.y += (keyboardHeight(notification) / 2)
+  }
+  
+  func keyboardHeight(notification: NSNotification) -> CGFloat {
+    let userInfo = notification.userInfo
+    let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
+    return keyboardSize.CGRectValue().height
+  }
+  
+  func subscribeToKeyboardNotifications() {
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+  }
+  
+  func unsubscribeFromKeyboardNotifications() {
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+  }
+  
+  func subscribeToKeyboardWillShowNotification() {
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
+  }
+  
+  func unsubscribeFromKeyboardWillShowNotification() {
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+  }
   
   // MARK: Tap gesture recognizer
   func singleTap(recognizer: UITapGestureRecognizer) {
@@ -125,10 +213,9 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       // treat tapping the view as pressing return on the keyboard
       if recognizer.state == UIGestureRecognizerState.Ended {
         locationTextView.resignFirstResponder()
-        searchAndSubmitButton.enabled = true
+        searchButton.enabled = true
       }
     }
   }
-  
   
 }

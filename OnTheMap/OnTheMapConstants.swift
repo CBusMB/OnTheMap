@@ -70,9 +70,12 @@ struct ActionSheetConstants {
   static let AlertActionTitleError = "Error"
   static let AlertActionTitleMultipleMatches = "Multiple matches found."
   static let AlertActionMessageChooseLocation = "Choose the best match"
+  static let AlertActionFormattedAddressLines = "FormattedAddressLines"
 }
 
 struct SegueIdentifierConstants {
   static let MapToPostSegue = "mapToPost"
   static let TableToPostSegue = "tableToPost"
 }
+
+
