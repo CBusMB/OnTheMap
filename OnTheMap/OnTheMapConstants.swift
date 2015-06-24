@@ -8,13 +8,14 @@
 
 import Foundation
 
-struct StudentLocationsGetSessionConstants {
+struct ParseAPIConstants {
   static let ParseApplicationID = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
   static let HeaderFieldForApplicationID = "X-Parse-Application-Id"
   static let RestAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
   static let HeaderFieldForREST = "X-Parse-REST-API-Key"
   static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
   static let Results = "results"
+  // static let ObjectID = "objectId"
   static let UniqueKey = "uniqueKey"
   static let FirstName = "firstName"
   static let LastName = "lastName"
@@ -76,6 +77,11 @@ struct ActionSheetConstants {
 struct SegueIdentifierConstants {
   static let MapToPostSegue = "mapToPost"
   static let TableToPostSegue = "tableToPost"
+}
+
+struct NameConstants {
+  static let FirstName = "Matthew"
+  static let LastName = "Brown"
 }
 
 

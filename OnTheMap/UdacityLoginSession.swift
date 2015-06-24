@@ -10,7 +10,7 @@ import Foundation
 
 class UdacityLoginSession {
   
-  class func udacityLoginTask(udacityParameters: [String: [String: String]], loginCompletionHandler: (success: Bool, completionMessage: String?) -> ()) {
+  class func udacityLoginTask(udacityParameters: [String : [String : String]], loginCompletionHandler: (success: Bool, completionMessage: String?) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: UdacityLoginSessionConstants.UdacitySessionURL)!)
     request.HTTPMethod = UdacityLoginSessionConstants.HttpMethod
     request.addValue(UdacityLoginSessionConstants.ApplicationJSON, forHTTPHeaderField: UdacityLoginSessionConstants.HttpHeaderFieldAccept)

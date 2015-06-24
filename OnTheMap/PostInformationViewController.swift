@@ -11,6 +11,8 @@ import MapKit
 
 class PostInformationViewController: UIViewController, MKMapViewDelegate, UITextViewDelegate
 {
+  var locationToSubmit: CLLocation?
+  
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
       mapView.hidden = true
@@ -35,8 +37,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   struct UserLocationTextAttributes {
     static let Attributes = [
-      NSForegroundColorAttributeName: UIColor.blueColor(),
-      NSFontAttributeName: UIFont(name: "HelveticaNeue", size: 22)!
+      NSForegroundColorAttributeName : UIColor.blueColor(),
+      NSFontAttributeName : UIFont(name: "HelveticaNeue", size: 22)!
     ]
     static let placeholder = "Enter your location here"
   }
@@ -97,20 +99,42 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func displayUserLocationMap(location: CLLocation) {
+    self.locationToSubmit = location
     updateUIForMapView()
     let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-    let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.4, 0.4))
+    let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.25, 0.25))
     mapView.setRegion(mapRegion, animated: true)
+    let annotation = MKPointAnnotation()
+    annotation.coordinate = location.coordinate
+    mapView.addAnnotation(annotation)
   }
   
   func updateUIForMapView() {
     mapView.hidden = false
-    bottomView.hidden = true
+    bottomView.backgroundColor = UIColor.clearColor()
+    bottomView.userInteractionEnabled = false
     locationTextView.hidden = true
-    mapView.addSubview(submitButton)
-    mapView.bringSubviewToFront(submitButton)
+    bottomView.addSubview(submitButton)
+    bottomView.bringSubviewToFront(submitButton)
     submitButton.hidden = false
     searchButton.hidden = true
+  }
+  
+  @IBAction func submitLocationToServer() {
+    let defaults = NSUserDefaults.standardUserDefaults()
+    let udacityUserName = defaults.stringForKey("userName")
+    
+    let studentInformation = NSDictionary(dictionary: [
+      ParseAPIConstants.UniqueKey : udacityUserName!,
+      ParseAPIConstants.FirstName : NameConstants.FirstName,
+      ParseAPIConstants.LastName : NameConstants.LastName,
+      ParseAPIConstants.MapString : locationTextView.text,
+      ParseAPIConstants.MediaURL : "placeholder", // TODO: add textField
+      ParseAPIConstants.Latitude : locationToSubmit!.coordinate.latitude,
+      ParseAPIConstants.Longitude : locationToSubmit!.coordinate.longitude
+    ])
+    
+    let studentInformationToPost = StudentLocation(nameAndLocation: studentInformation)
   }
   
   func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {

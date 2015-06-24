@@ -37,7 +37,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
       mapLocations.removeAllLocations()
     }
     
-    StudentLocationsGetSession.getStudentLocationsTask { (success, completionMessage) -> () in
+    StudentLocationsGetSession.getStudentLocationsTask { (success, completionMessage) -> Void in
       if !success {
         let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .ActionSheet)
         let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -60,8 +60,8 @@ class MapViewController: UIViewController, MKMapViewDelegate
       annotation.title = "\(location.firstName) \(location.lastName)"
       annotation.subtitle = location.mediaURL
       annotations.append(annotation)
-      mapView.addAnnotations(annotations)
     }
+    mapView.addAnnotations(annotations)
   }
   
   func dropPin() {

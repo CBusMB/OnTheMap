@@ -11,10 +11,18 @@ import Foundation
 struct UdacityUser {
   let userName: String
   let password: String
-  lazy var udacityParameters: [String: [String: String]] = [UdacityLoginSessionConstants.Udacity: [UdacityLoginSessionConstants.Username: self.userName, UdacityLoginSessionConstants.Password: self.password]]
+  lazy var udacityParameters: [String : [String : String]] = [UdacityLoginSessionConstants.Udacity : [UdacityLoginSessionConstants.Username : self.userName, UdacityLoginSessionConstants.Password : self.password]]
   
   init(userName: String, password: String) {
     self.userName = userName
     self.password = password
+    saveUserNameAndPassword()
   }
+  
+  func saveUserNameAndPassword() {
+    let defaults = NSUserDefaults.standardUserDefaults()
+    defaults.setObject(userName, forKey: "userName")
+    defaults.setObject(password, forKey: "password")
+  }
+
 }

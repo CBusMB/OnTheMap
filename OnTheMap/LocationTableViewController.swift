@@ -13,7 +13,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   let mapLocations = OnTheMapLocations.sharedCollection
   
   // MARK: - Lifecycle
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     tableView.delegate = self
@@ -29,13 +29,13 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     super.viewWillAppear(animated)
     tableView.reloadData()
   }
-
+  
   // MARK: - Table view data source & delegate
   
   override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return mapLocations.locationsCollection.count
   }
-
+  
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier(TableViewConstants.CellIdentifier, forIndexPath: indexPath) as! UITableViewCell
     cell.imageView?.image = UIImage(named: ImageConstants.PinImage)
@@ -47,20 +47,22 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     let application = UIApplication.sharedApplication()
     if let mediaURL = NSURL(string: mapLocations.locationsCollection[indexPath.row].mediaURL) {
       application.openURL(mediaURL)
-    } else {
-      return
     }
   }
   
   // MARK: - Navigation
-//  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-//    if segue.identifier == SegueIdentifierConstants.TableToPostSegue {
-//      
-//    }
-//  }
+  //  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+  //    if segue.identifier == SegueIdentifierConstants.TableToPostSegue {
+  //
+  //    }
+  //  }
   
   func dropPin() {
     performSegueWithIdentifier(SegueIdentifierConstants.TableToPostSegue, sender: self)
+  }
+  
+  func refresh() {
+    
   }
   
   func logout() {
@@ -74,5 +76,5 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     presentViewController(logoutActionSheet, animated: true, completion: nil)
   }
   
-
+  
 }
