@@ -135,6 +135,17 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     ])
     
     let studentInformationToPost = StudentLocation(nameAndLocation: studentInformation)
+    StudentLocationPostSession.postStudentLocationSession(studentInformation) { (success, completionMessage) -> Void in
+      if !success {
+        if let message = completionMessage {
+          println("Error")
+        }
+      } else {
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+          self.dismissViewControllerAnimated(true, completion: nil)
+        })
+      }
+    }
   }
   
   func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
