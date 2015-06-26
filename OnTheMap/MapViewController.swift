@@ -39,14 +39,14 @@ class MapViewController: UIViewController, MKMapViewDelegate
     
     StudentLocationsGetSession.getStudentLocationsTask { (success, completionMessage) -> Void in
       if !success {
-        let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .ActionSheet)
+        let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
         errorActionSheet.addAction(cancel)
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        dispatch_async(dispatch_get_main_queue(), { () in
           self.presentViewController(errorActionSheet, animated: true, completion: nil)
         })
       } else {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        dispatch_async(dispatch_get_main_queue(), { () in
           self.addLocationPinsToMap()
         })
       }
@@ -69,7 +69,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func logout() {
-    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .ActionSheet)
+    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .Alert)
     let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
     self.mapLocations.removeAllLocations()

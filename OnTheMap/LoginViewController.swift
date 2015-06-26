@@ -38,7 +38,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
-    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) -> Void in
+    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) in
       if !success {
         if let message = completionMessage {
           self.presentErrorActionSheet(message: message)
@@ -91,6 +91,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   override func viewDidLoad() {
     super.viewDidLoad()
     signUpTextView.backgroundColor = view.backgroundColor
+    let defaults = NSUserDefaults.standardUserDefaults()
+    if let userName = defaults.stringForKey("userName") {
+      let password = defaults.stringForKey("password")
+      emailTextField.text = userName
+      passwordTextField.text = password
+      loginToUdacity()
+    }
   }
   
   override func viewWillAppear(animated: Bool) {

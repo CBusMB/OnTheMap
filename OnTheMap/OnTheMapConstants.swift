@@ -23,7 +23,6 @@ struct ParseAPIConstants {
   static let MediaURL = "mediaURL"
   static let Latitude = "latitude"
   static let Longitude = "longitude"
-  static let ParsePostURL = "https://api.parse.com/1/classes/StudentLocation"
   static let HttpHeaderFieldContentType = "Content-Type"
   static let ApplicationJSON = "application/json"
 }
@@ -63,6 +62,10 @@ struct ImageConstants {
 
 struct MapViewConstants {
   static let ReuseIdentifier = "pin"
+}
+
+struct DefaultStudentInformationConstants {
+  static let UdacityHomePage = "www.udacity.com"
 }
 
 struct ActionSheetConstants {

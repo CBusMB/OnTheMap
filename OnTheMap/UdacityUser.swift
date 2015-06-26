@@ -22,6 +22,7 @@ struct UdacityUser {
   func saveUserNameAndPassword() {
     let defaults = NSUserDefaults.standardUserDefaults()
     defaults.setObject(userName, forKey: "userName")
+    // this is a student app, but normally would not store password in NSUserDefaults
     defaults.setObject(password, forKey: "password")
   }
 

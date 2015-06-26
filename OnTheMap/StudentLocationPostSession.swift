@@ -12,7 +12,7 @@ import MapKit
 class StudentLocationPostSession
 {
   class func postStudentLocationSession(studentInformation: NSDictionary, completionHandler: (success: Bool, message: String?) -> Void) {
-    let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParsePostURL)!)
+    let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
     request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)
     request.addValue(ParseAPIConstants.ApplicationJSON, forHTTPHeaderField: ParseAPIConstants.HttpHeaderFieldContentType)

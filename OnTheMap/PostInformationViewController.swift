@@ -29,31 +29,62 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   @IBOutlet weak var locationTextView: UITextView! {
     didSet {
-      locationTextView.delegate = self
-      let placeholderText = NSAttributedString(string: UserLocationTextAttributes.placeholder, attributes: UserLocationTextAttributes.Attributes)
+      let placeholderText = NSAttributedString(string: AttributedStringAttributes.locationPlaceholder, attributes: AttributedStringAttributes.TextFieldTextAttributes)
       locationTextView.attributedText = placeholderText
+      setAttributes(forTextView: locationTextView, hiddenOnLoad: false)
     }
   }
   
-  struct UserLocationTextAttributes {
-    static let Attributes = [
-      NSForegroundColorAttributeName : UIColor.blueColor(),
+  @IBOutlet weak var urlTextView: UITextView! {
+    didSet {
+      let placeholderText = NSAttributedString(string: AttributedStringAttributes.urlPlaceholder, attributes: AttributedStringAttributes.TextFieldTextAttributes)
+      urlTextView.attributedText = placeholderText
+      setAttributes(forTextView: urlTextView, hiddenOnLoad: true)
+    }
+  }
+  
+  func setAttributes(forTextView textView: UITextView, hiddenOnLoad: Bool) {
+    textView.delegate = self
+    textView.textAlignment = .Center
+    textView.backgroundColor = UIColor.clearColor()
+    textView.hidden = hiddenOnLoad
+  }
+  
+  struct AttributedStringAttributes {
+    static let TextFieldTextAttributes = [
+      NSForegroundColorAttributeName : UIColor.whiteColor(),
       NSFontAttributeName : UIFont(name: "HelveticaNeue", size: 22)!
     ]
-    static let placeholder = "Enter your location here"
+    static let locationPlaceholder = "Enter your location here"
+    static let urlPlaceholder = "Please tap here to enter a URL"
+    static let TopLabelTextAttributes = [
+      
+    ]
   }
 
   @IBOutlet weak var searchButton: UIButton! {
     didSet {
-      searchButton.layer.cornerRadius = 3.5
-      searchButton.layer.borderWidth = 1.0
-      searchButton.enabled = false
+      setAttributes(forButton: searchButton, hiddenOnLoad: false)
     }
   }
+  
   @IBOutlet weak var submitButton: UIButton! {
     didSet {
-      submitButton.hidden = true
+      setAttributes(forButton: submitButton, hiddenOnLoad: true)
     }
+  }
+  
+  @IBOutlet weak var browseWebButton: UIButton! {
+    didSet {
+      setAttributes(forButton: browseWebButton, hiddenOnLoad: true)
+      browseWebButton.layer.borderWidth = 0.0
+    }
+  }
+  
+  func setAttributes(forButton button: UIButton, hiddenOnLoad: Bool) {
+    button.layer.cornerRadius = 3.5
+    button.layer.borderWidth = 1.0
+    button.hidden = hiddenOnLoad
   }
   
   // MARK: Lifecycle
@@ -99,7 +130,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func displayUserLocationMap(location: CLLocation) {
-    self.locationToSubmit = location
+    locationToSubmit = location
     updateUIForMapView()
     let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
     let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.25, 0.25))
@@ -118,24 +149,16 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     bottomView.bringSubviewToFront(submitButton)
     submitButton.hidden = false
     searchButton.hidden = true
+    locationQuestionTopLabel.hidden = true
+    locationQuestionMiddleLabel.hidden = true
+    locationQuestionBottomLabel.hidden = true
+    urlTextView.hidden = false
+    browseWebButton.hidden = false
   }
   
   @IBAction func submitLocationToServer() {
-    let defaults = NSUserDefaults.standardUserDefaults()
-    let udacityUserName = defaults.stringForKey("userName")
-    
-    let studentInformation = NSDictionary(dictionary: [
-      ParseAPIConstants.UniqueKey : udacityUserName!,
-      ParseAPIConstants.FirstName : NameConstants.FirstName,
-      ParseAPIConstants.LastName : NameConstants.LastName,
-      ParseAPIConstants.MapString : locationTextView.text,
-      ParseAPIConstants.MediaURL : "placeholder", // TODO: add textField
-      ParseAPIConstants.Latitude : locationToSubmit!.coordinate.latitude,
-      ParseAPIConstants.Longitude : locationToSubmit!.coordinate.longitude
-    ])
-    
-    let studentInformationToPost = StudentLocation(nameAndLocation: studentInformation)
-    StudentLocationPostSession.postStudentLocationSession(studentInformation) { (success, completionMessage) -> Void in
+    let studentInformationToPost = createStudentInformationDictionaryToPost()
+    StudentLocationPostSession.postStudentLocationSession(studentInformationToPost) { (success, completionMessage) in
       if !success {
         if let message = completionMessage {
           println("Error")
@@ -146,6 +169,30 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         })
       }
     }
+  }
+  
+  func createStudentInformationDictionaryToPost() -> NSDictionary {
+    let defaults = NSUserDefaults.standardUserDefaults()
+    let udacityUserName = defaults.stringForKey("userName")
+    
+    var urlToSubmit: String
+    if urlTextView.text == AttributedStringAttributes.urlPlaceholder {
+      urlToSubmit = DefaultStudentInformationConstants.UdacityHomePage
+    } else {
+      urlToSubmit = urlTextView.text
+    }
+    
+    let studentInformation = NSDictionary(dictionary: [
+      ParseAPIConstants.UniqueKey : udacityUserName!,
+      ParseAPIConstants.FirstName : NameConstants.FirstName,
+      ParseAPIConstants.LastName : NameConstants.LastName,
+      ParseAPIConstants.MapString : locationTextView.text,
+      ParseAPIConstants.MediaURL : urlToSubmit,
+      ParseAPIConstants.Latitude : locationToSubmit!.coordinate.latitude,
+      ParseAPIConstants.Longitude : locationToSubmit!.coordinate.longitude
+      ])
+    
+    return studentInformation
   }
   
   func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
@@ -179,7 +226,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func presentErrorActionSheet() {
-    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .ActionSheet)
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
     let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
     let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -198,10 +245,13 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   // MARK: MKMapView
   
   
-  // MARK: TextView Delegate
-  func textViewShouldEndEditing(textView: UITextView) -> Bool {
-    locationTextView.resignFirstResponder()
-    searchButton.enabled = true
+  // MARK: TextView Delegate  
+  func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+    if text == "\n" {
+      textView.resignFirstResponder()
+      searchButton.enabled = true
+      return false
+    }
     return true
   }
   
@@ -211,11 +261,11 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func keyboardWillShow(notification: NSNotification) {
-    self.view.frame.origin.y -= (keyboardHeight(notification) / 2)
+    //self.view.frame.origin.y -= (keyboardHeight(notification) / 2)
   }
   
   func keyboardWillHide(notification: NSNotification) {
-    self.view.frame.origin.y += (keyboardHeight(notification) / 2)
+    //self.view.frame.origin.y += (keyboardHeight(notification) / 2)
   }
   
   func keyboardHeight(notification: NSNotification) -> CGFloat {
