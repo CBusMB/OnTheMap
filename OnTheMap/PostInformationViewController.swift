@@ -12,6 +12,7 @@ import MapKit
 class PostInformationViewController: UIViewController, MKMapViewDelegate, UITextViewDelegate
 {
   var locationToSubmit: CLLocation?
+  var userWantsToOverwriteLocation: Bool?
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
@@ -166,15 +167,21 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   @IBAction func submitLocationToServer() {
     let studentInformationToPost = createStudentInformationDictionaryToPost()
-    StudentLocationPostSession.postStudentLocationSession(studentInformationToPost) { (success, completionMessage) in
-      if !success {
-        if let message = completionMessage {
-          println("Error")
+    if let overwrite = userWantsToOverwriteLocation {
+      if overwrite {
+        StudentLocationPostSession.postStudentLocationSession(studentInformationToPost) { (success, completionMessage) in
+          if !success {
+            if let message = completionMessage {
+              println("Error")
+            }
+          } else {
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+              self.dismissViewControllerAnimated(true, completion: nil)
+            })
+          }
         }
       } else {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-          self.dismissViewControllerAnimated(true, completion: nil)
-        })
+        
       }
     }
   }

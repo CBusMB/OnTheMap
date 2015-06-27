@@ -35,4 +35,15 @@ class OnTheMapLocations
   func removeAllLocations() {
     locations.removeAll(keepCapacity: false)
   }
+  
+  func checkForMatchingUserName(name: String) -> Bool {
+    var match = false
+    for student in locations {
+      if name == student.uniqueKey {
+        match = true
+        break
+      }
+    }
+    return match
+  }
 }

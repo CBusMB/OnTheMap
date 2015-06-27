@@ -68,6 +68,29 @@ class MapViewController: UIViewController, MKMapViewDelegate
     performSegueWithIdentifier(SegueIdentifierConstants.MapToPostSegue, sender: self)
   }
   
+  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    if segue.identifier == "mapToPost" {
+      let uniqueID = NSUserDefaults.standardUserDefaults().stringForKey("userName")
+      let match = mapLocations.checkForMatchingUserName(uniqueID!)
+      if match {
+        let postInformationViewController = segue.destinationViewController as! PostInformationViewController
+        postInformationViewController.userWantsToOverwriteLocation = confirmUserWantsToOverwriteLocation()
+      }
+    }
+  }
+  
+  func confirmUserWantsToOverwriteLocation() -> Bool {
+    var confirmOverwrite = true
+    let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
+    let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: nil)
+    let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
+      confirmOverwrite = false })
+    confirmationAlert.addAction(overwrite)
+    confirmationAlert.addAction(addNewLocation)
+    
+    return confirmOverwrite
+  }
+  
   func logout() {
     let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .Alert)
     let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
