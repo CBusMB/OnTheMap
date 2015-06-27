@@ -77,13 +77,12 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   @IBOutlet weak var browseWebButton: UIButton! {
     didSet {
       setAttributes(forButton: browseWebButton, hiddenOnLoad: true)
-      browseWebButton.layer.borderWidth = 0.0
     }
   }
   
   func setAttributes(forButton button: UIButton, hiddenOnLoad: Bool) {
-    button.layer.cornerRadius = 3.5
-    button.layer.borderWidth = 1.0
+    button.layer.cornerRadius = 3.0
+    button.layer.borderWidth = 0.7
     button.hidden = hiddenOnLoad
   }
   
@@ -95,16 +94,14 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     view.userInteractionEnabled = true
   }
   
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-    subscribeToKeyboardNotifications()
+  @IBAction func unwindFromWebView(segue: UIStoryboardSegue) {
+    let webViewController = segue.sourceViewController as! BrowseForURLViewController
+    if let userSelectedURL = webViewController.webView.request?.URL?.absoluteString {
+      urlTextView.text = userSelectedURL
+    }
   }
   
-  override func viewWillDisappear(animated: Bool) {
-    super.viewWillDisappear(animated)
-    unsubscribeFromKeyboardNotifications()
-  }
-  
+  // MARK: MKMapView
   @IBAction func searchForStudentLocation() {
     geocodeUserLocation()
   }
@@ -113,47 +110,58 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     let geocoder = CLGeocoder()
     geocoder.geocodeAddressString(locationTextView.text, completionHandler: { (placemark, error) in
       if error != nil {
-        self.presentErrorActionSheet()
+        self.presentErrorAlert()
       } else {
         if let placemarks = placemark as? [CLPlacemark] {
           if placemarks.count > 1 {
             self.presentLocationChoiceActionSheet(forLocations: placemarks)
           } else {
             let location = placemarks[0].location
-            self.displayUserLocationMap(location)
+            self.addUserLocationAnnotationToMap(atLocation: location)
           }
         } else {
-          // handle downcast error
+          self.presentErrorAlert()
         }
       }
     })
   }
   
-  func displayUserLocationMap(location: CLLocation) {
+  func addUserLocationAnnotationToMap(atLocation location: CLLocation) {
     locationToSubmit = location
-    updateUIForMapView()
     let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
     let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.25, 0.25))
     mapView.setRegion(mapRegion, animated: true)
     let annotation = MKPointAnnotation()
     annotation.coordinate = location.coordinate
     mapView.addAnnotation(annotation)
+    updateUIForMapView()
   }
   
   func updateUIForMapView() {
-    mapView.hidden = false
-    bottomView.backgroundColor = UIColor.clearColor()
-    bottomView.userInteractionEnabled = false
-    locationTextView.hidden = true
-    bottomView.addSubview(submitButton)
-    bottomView.bringSubviewToFront(submitButton)
-    submitButton.hidden = false
-    searchButton.hidden = true
-    locationQuestionTopLabel.hidden = true
-    locationQuestionMiddleLabel.hidden = true
-    locationQuestionBottomLabel.hidden = true
-    urlTextView.hidden = false
-    browseWebButton.hidden = false
+    println("updatingUI")
+    UIView.animateWithDuration(1.5, animations: {
+      self.bottomView.alpha = -1.0
+      self.locationTextView.alpha = -1.0
+      self.searchButton.alpha = -1.0
+      self.locationQuestionTopLabel.alpha = -1.0
+      self.locationQuestionMiddleLabel.alpha = -1.0
+      self.locationQuestionBottomLabel.alpha = -1.0 })
+      { (finished) in
+        if finished {
+          self.bottomView.alpha = 1.0
+          self.bottomView.backgroundColor = UIColor.clearColor()
+          self.bottomView.userInteractionEnabled = false
+          self.locationTextView.hidden = true
+          self.submitButton.hidden = false
+          self.searchButton.hidden = true
+          self.locationQuestionTopLabel.hidden = true
+          self.locationQuestionMiddleLabel.hidden = true
+          self.locationQuestionBottomLabel.hidden = true
+          self.urlTextView.hidden = false
+          self.browseWebButton.hidden = false
+          self.mapView.hidden = false
+        }
+      }
   }
   
   @IBAction func submitLocationToServer() {
@@ -202,20 +210,20 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     let firstLocationAddressLines = placemarks[0].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
     let firstLocation = UIAlertAction(title: firstLocationAddressLines[0], style: .Default, handler: { Void in
       let location =  placemarks[0].location
-      self.displayUserLocationMap(location) })
+      self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(firstLocation)
     
     let secondLocationAddressLines = placemarks[1].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
     let secondLocation = UIAlertAction(title: secondLocationAddressLines[0], style: .Default, handler: { Void in
       let location =  placemarks[1].location
-      self.displayUserLocationMap(location) })
+      self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(secondLocation)
     
     if placemarks.count > 2 {
       let thirdLocationAddressLines = placemarks[2].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
       let thirdLocation = UIAlertAction(title: thirdLocationAddressLines[0], style: .Default, handler: { Void in
         let location =  placemarks[2].location
-        self.displayUserLocationMap(location) })
+        self.addUserLocationAnnotationToMap(atLocation: location) })
       locationChoiceActionSheet.addAction(thirdLocation)
     }
     
@@ -225,7 +233,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     presentViewController(locationChoiceActionSheet, animated: true, completion: nil)
   }
   
-  func presentErrorActionSheet() {
+  func presentErrorAlert() {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
     let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
@@ -235,15 +243,32 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func resetUI() {
-    
+    bottomView.alpha = 1.0
+    locationTextView.alpha = 1.0
+    searchButton.alpha = 1.0
+    locationQuestionTopLabel.alpha = 1.0
+    locationQuestionMiddleLabel.alpha = 1.0
+    locationQuestionBottomLabel.alpha = 1.0
+    mapView.hidden = true
+    bottomView.backgroundColor = self.topView.backgroundColor
+    bottomView.userInteractionEnabled = true
+    locationTextView.hidden = false
+    submitButton.hidden = true
+    searchButton.hidden = false
+    locationQuestionTopLabel.hidden = false
+    locationQuestionMiddleLabel.hidden = false
+    locationQuestionBottomLabel.hidden = false
+    urlTextView.hidden = true
+    browseWebButton.hidden = true
   }
   
   @IBAction func cancel(sender: UIButton) {
-    dismissViewControllerAnimated(true, completion: nil)
+    if mapView.hidden {
+      dismissViewControllerAnimated(true, completion: nil)
+    } else {
+      resetUI()
+    }
   }
-  
-  // MARK: MKMapView
-  
   
   // MARK: TextView Delegate  
   func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
@@ -258,38 +283,6 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   func textViewShouldBeginEditing(textView: UITextView) -> Bool {
     textView.text = String()
     return true
-  }
-  
-  func keyboardWillShow(notification: NSNotification) {
-    //self.view.frame.origin.y -= (keyboardHeight(notification) / 2)
-  }
-  
-  func keyboardWillHide(notification: NSNotification) {
-    //self.view.frame.origin.y += (keyboardHeight(notification) / 2)
-  }
-  
-  func keyboardHeight(notification: NSNotification) -> CGFloat {
-    let userInfo = notification.userInfo
-    let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-    return keyboardSize.CGRectValue().height
-  }
-  
-  func subscribeToKeyboardNotifications() {
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
-  }
-  
-  func unsubscribeFromKeyboardNotifications() {
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
-  }
-  
-  func subscribeToKeyboardWillShowNotification() {
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-  }
-  
-  func unsubscribeFromKeyboardWillShowNotification() {
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
   }
   
   // MARK: Tap gesture recognizer

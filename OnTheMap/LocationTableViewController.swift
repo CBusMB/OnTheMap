@@ -50,13 +50,6 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     }
   }
   
-  // MARK: - Navigation
-  //  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-  //    if segue.identifier == SegueIdentifierConstants.TableToPostSegue {
-  //
-  //    }
-  //  }
-  
   func dropPin() {
     performSegueWithIdentifier(SegueIdentifierConstants.TableToPostSegue, sender: self)
   }
