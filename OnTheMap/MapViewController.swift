@@ -13,6 +13,12 @@ class MapViewController: UIViewController, MKMapViewDelegate
 {
   var annotations = [MKPointAnnotation]()
   let mapLocations = OnTheMapLocations.sharedCollection
+  var objectIdForUserName: String?
+  var userWantsToOverwriteLocation: Bool? {
+    didSet {
+      dropPin()
+    }
+  }
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
@@ -24,7 +30,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   override func viewDidLoad() {
     super.viewDidLoad()
     navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationItemConstants.Logout, style: .Plain, target: self, action: "logout")
-    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.PinImage), style: .Plain, target: self, action: "dropPin")
+    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.PinImage), style: .Plain, target: self, action: "confirmUserWantsToOverwriteLocation")
     let reload = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "getStudentLocations")
     var rightBarButtonItems = [reload, pin]
     navigationItem.rightBarButtonItems = rightBarButtonItems
@@ -37,7 +43,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
       mapLocations.removeAllLocations()
     }
     
-    StudentLocationsGetSession.getStudentLocationsTask { (success, completionMessage) -> Void in
+    ParseAPISession.getStudentLocationsTask { (success, completionMessage) -> Void in
       if !success {
         let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -70,25 +76,26 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
     if segue.identifier == "mapToPost" {
-      let uniqueID = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-      let match = mapLocations.checkForMatchingUserName(uniqueID!)
-      if match {
-        let postInformationViewController = segue.destinationViewController as! PostInformationViewController
-        postInformationViewController.userWantsToOverwriteLocation = confirmUserWantsToOverwriteLocation()
-      }
+      let postInformationViewController = segue.destinationViewController as! PostInformationViewController
+      postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
+      postInformationViewController.objectIdForUserName = objectIdForUserName
     }
   }
   
-  func confirmUserWantsToOverwriteLocation() -> Bool {
-    var confirmOverwrite = true
-    let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
-    let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: nil)
-    let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
-      confirmOverwrite = false })
-    confirmationAlert.addAction(overwrite)
-    confirmationAlert.addAction(addNewLocation)
-    
-    return confirmOverwrite
+  func confirmUserWantsToOverwriteLocation() {
+    let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
+    let match = mapLocations.checkForMatchingObjectId(byUserName: userName!)
+    if match.0 {
+      objectIdForUserName = match.1!
+      let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
+      let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: { Void in
+        self.userWantsToOverwriteLocation = true })
+      let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
+        self.userWantsToOverwriteLocation = false })
+      confirmationAlert.addAction(overwrite)
+      confirmationAlert.addAction(addNewLocation)
+      presentViewController(confirmationAlert, animated: true, completion: nil)
+    }
   }
   
   func logout() {
@@ -122,20 +129,6 @@ class MapViewController: UIViewController, MKMapViewDelegate
     
     return pinAnnotationView
   }
-  
-//  func mapView(mapView: MKMapView!, didAddAnnotationViews views: [AnyObject]!) {
-//    let annotationViews = views as! [MKAnnotationView]
-//    for annotationView in annotationViews {
-//      let mapPoint = MKMapPointForCoordinate(annotationView.annotation.coordinate)
-//      if !MKMapRectContainsPoint(mapView.visibleMapRect, mapPoint) {
-//        mapView.removeAnnotation(annotationView.annotation)
-//      }
-//    }
-//  }
-//  
-//  func mapView(mapView: MKMapView!, regionWillChangeAnimated animated: Bool) {
-//    addLocationPinsToMap()
-//  }
   
   func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
     if let studentURL = NSURL(string: view.annotation.subtitle!) {

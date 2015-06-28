@@ -13,6 +13,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
 {
   var locationToSubmit: CLLocation?
   var userWantsToOverwriteLocation: Bool?
+  var objectIdForUserName: String?
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
@@ -93,6 +94,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     let singleTap = UITapGestureRecognizer(target: self, action: "singleTap:")
     view.addGestureRecognizer(singleTap)
     view.userInteractionEnabled = true
+    println("\(userWantsToOverwriteLocation)")
   }
   
   @IBAction func unwindFromWebView(segue: UIStoryboardSegue) {
@@ -139,7 +141,6 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func updateUIForMapView() {
-    println("updatingUI")
     UIView.animateWithDuration(1.5, animations: {
       self.bottomView.alpha = -1.0
       self.locationTextView.alpha = -1.0
@@ -151,7 +152,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         if finished {
           self.bottomView.alpha = 1.0
           self.bottomView.backgroundColor = UIColor.clearColor()
-          self.bottomView.userInteractionEnabled = false
+          // self.bottomView.userInteractionEnabled = false
+          self.bottomView.bringSubviewToFront(self.submitButton)
           self.locationTextView.hidden = true
           self.submitButton.hidden = false
           self.searchButton.hidden = true
@@ -166,23 +168,46 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   @IBAction func submitLocationToServer() {
-    let studentInformationToPost = createStudentInformationDictionaryToPost()
+    println("submit information")
+    println("\(userWantsToOverwriteLocation) user wants to overwrite")
+    var alertTitleAndMessage: (String?, String?)
     if let overwrite = userWantsToOverwriteLocation {
+      let studentInformationToPost = createStudentInformationDictionaryToPost()
       if overwrite {
-        StudentLocationPostSession.postStudentLocationSession(studentInformationToPost) { (success, completionMessage) in
+        let putSessionURL = "https://api.parse.com/1/classes/StudentLocation/" + objectIdForUserName!
+        ParseAPISession.putStudentLocationSession(studentInformationToPost, urlWithObjectId: putSessionURL) { (success, completionMessage) in
+          println("\(success), \(completionMessage)")
           if !success {
-            if let message = completionMessage {
-              println("Error")
-            }
+            alertTitleAndMessage = ("Upload Failed", "Location Not Updated")
+            println("\(alertTitleAndMessage.0)")
           } else {
+            alertTitleAndMessage = completionMessage
+            println("\(alertTitleAndMessage.0)")
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-              self.dismissViewControllerAnimated(true, completion: nil)
+              let completionAlert = UIAlertController(title: alertTitleAndMessage.0, message: alertTitleAndMessage.1, preferredStyle: .Alert)
+              let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { Void in self.dismissViewControllerAnimated(true, completion: nil) })
+              completionAlert.addAction(dismiss)
+              self.presentViewController(completionAlert, animated: true, completion: nil)
             })
           }
         }
-      } else {
-        
-      }
+      } //else {
+//        ParseAPISession.postStudentLocationSession(studentInformationToPost) { (success, message) in
+//          if !success {
+//            alertTitleAndMessage = ("Upload Failed", "Location Not Added")
+//            
+//          } else {
+//            
+//            alertTitleAndMessage = message
+//            
+//          }
+//        }
+//      }
+//        println("\(alertTitleAndMessage.0)")
+//        let completionAlert = UIAlertController(title: alertTitleAndMessage.0, message: alertTitleAndMessage.1, preferredStyle: .Alert)
+//        let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { Void in self.dismissViewControllerAnimated(true, completion: nil) })
+//        completionAlert.addAction(dismiss)
+//        presentViewController(completionAlert, animated: true, completion: nil)
     }
   }
   

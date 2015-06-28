@@ -14,8 +14,9 @@ struct ParseAPIConstants {
   static let RestAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
   static let HeaderFieldForREST = "X-Parse-REST-API-Key"
   static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
+  static let TemporaryPutURL = "https://api.parse.com/1/classes/StudentLocation/qsZV0NeyZc"
   static let Results = "results"
-  // static let ObjectID = "objectId"
+  static let ObjectID = "objectId"
   static let UniqueKey = "uniqueKey"
   static let FirstName = "firstName"
   static let LastName = "lastName"
@@ -25,6 +26,8 @@ struct ParseAPIConstants {
   static let Longitude = "longitude"
   static let HttpHeaderFieldContentType = "Content-Type"
   static let ApplicationJSON = "application/json"
+  static let HTTPMethodPOST = "POST"
+  static let HTTPMethodPUT = "PUT"
 }
 
 struct UdacityLoginSessionConstants {

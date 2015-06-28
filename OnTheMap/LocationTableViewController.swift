@@ -11,6 +11,12 @@ import UIKit
 class LocationTableViewController: UITableViewController, UITableViewDelegate, UITableViewDataSource
 {
   let mapLocations = OnTheMapLocations.sharedCollection
+  var objectIdForUserName: String?
+  var userWantsToOverwriteLocation: Bool? {
+    didSet {
+      dropPin()
+    }
+  }
   
   // MARK: - Lifecycle
   
@@ -55,13 +61,10 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    if segue.identifier == "tableToPost" {
-      let uniqueID = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-      let match = mapLocations.checkForMatchingUserName(uniqueID!)
-      if match {
-        let postInformationViewController = segue.destinationViewController as! PostInformationViewController
-        postInformationViewController.userWantsToOverwriteLocation = confirmUserWantsToOverwriteLocation()
-      }
+    if segue.identifier == "mapToPost" {
+      let postInformationViewController = segue.destinationViewController as! PostInformationViewController
+      postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
+      postInformationViewController.objectIdForUserName = objectIdForUserName
     }
   }
   
@@ -73,6 +76,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
       confirmOverwrite = false })
     confirmationAlert.addAction(overwrite)
     confirmationAlert.addAction(addNewLocation)
+    presentViewController(confirmationAlert, animated: true, completion: nil)
     
     return confirmOverwrite
   }

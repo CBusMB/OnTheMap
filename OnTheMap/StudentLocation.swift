@@ -10,6 +10,7 @@ import Foundation
 import MapKit
 
 struct StudentLocation {
+  let objectID: String
   let uniqueKey: String
   let firstName: String
   let lastName: String
@@ -18,6 +19,7 @@ struct StudentLocation {
   let coordinate: CLLocationCoordinate2D
   
   init(nameAndLocation: NSDictionary) {
+    objectID = nameAndLocation[ParseAPIConstants.ObjectID] as! String
     uniqueKey = nameAndLocation[ParseAPIConstants.UniqueKey] as! String
     firstName = nameAndLocation[ParseAPIConstants.FirstName] as! String
     lastName = nameAndLocation[ParseAPIConstants.LastName] as! String

@@ -36,14 +36,17 @@ class OnTheMapLocations
     locations.removeAll(keepCapacity: false)
   }
   
-  func checkForMatchingUserName(name: String) -> Bool {
+  func checkForMatchingObjectId(byUserName name: String) -> (Bool, String?) {
     var match = false
+    var objectID: String?
     for student in locations {
       if name == student.uniqueKey {
         match = true
+        objectID = student.objectID
         break
       }
     }
-    return match
+    return (match, objectID)
   }
+  
 }
