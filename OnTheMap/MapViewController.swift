@@ -14,8 +14,9 @@ class MapViewController: UIViewController, MKMapViewDelegate
   var annotations = [MKPointAnnotation]()
   let mapLocations = OnTheMapLocations.sharedCollection
   var objectIdForUserName: String?
-  var userWantsToOverwriteLocation: Bool? {
+  private var userWantsToOverwriteLocation: Bool? {
     didSet {
+      // as soon as the user confirms to overwrite / make new location, we "drop the pin" and segue to the next vc
       dropPin()
     }
   }
@@ -34,7 +35,17 @@ class MapViewController: UIViewController, MKMapViewDelegate
     let reload = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "getStudentLocations")
     var rightBarButtonItems = [reload, pin]
     navigationItem.rightBarButtonItems = rightBarButtonItems
+    // start the network session to pull in the student location data as soon as the view loads
     getStudentLocations()
+  }
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    // locationsCollection is empty first time the view loads / appears.  When returning from posting a new location,
+    // addLocationPinsToMap will add the new location to the map without going out to the network
+    if !mapLocations.locationsCollection.isEmpty {
+      addLocationPinsToMap()
+    }
   }
   
   func getStudentLocations() {
@@ -45,11 +56,11 @@ class MapViewController: UIViewController, MKMapViewDelegate
     
     ParseAPISession.getStudentLocationsTask { (success, completionMessage) -> Void in
       if !success {
-        let errorActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
+        let errorAlert = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
-        errorActionSheet.addAction(cancel)
+        errorAlert.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () in
-          self.presentViewController(errorActionSheet, animated: true, completion: nil)
+          self.presentViewController(errorAlert, animated: true, completion: nil)
         })
       } else {
         dispatch_async(dispatch_get_main_queue(), { () in
@@ -84,9 +95,9 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    let match = mapLocations.checkForMatchingObjectId(byUserName: userName!)
-    if match.0 {
-      objectIdForUserName = match.1!
+    let objectId = mapLocations.checkForMatchingObjectId(byUserName: userName!)
+    if objectId.0 {
+      objectIdForUserName = objectId.1!
       let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: { Void in
         self.userWantsToOverwriteLocation = true })
@@ -131,7 +142,13 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
-    if let studentURL = NSURL(string: view.annotation.subtitle!) {
+    var urlString = NSString(string: view.annotation.subtitle!)
+    if urlString.substringToIndex(6) != "http:\\\\" {
+      urlString = "http:\\\\" + (urlString as String)
+    }
+    println("\(urlString)")
+    if let studentURL = NSURL(string: urlString as! String) {
+      println("\(studentURL)")
       if control == view.rightCalloutAccessoryView {
         let application = UIApplication.sharedApplication()
         application.openURL(studentURL)

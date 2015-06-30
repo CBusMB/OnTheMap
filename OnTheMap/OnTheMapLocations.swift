@@ -49,4 +49,13 @@ class OnTheMapLocations
     return (match, objectID)
   }
   
+  func removeStudentLocationForObjectID(objectID: String) {
+    println("removing location")
+    for var i = 0; i < locations.count; i++ {
+      if objectID == locations[i].objectID {
+        locations.removeAtIndex(i)
+      }
+    }
+  }
+  
 }

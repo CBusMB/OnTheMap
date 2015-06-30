@@ -14,7 +14,6 @@ struct ParseAPIConstants {
   static let RestAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
   static let HeaderFieldForREST = "X-Parse-REST-API-Key"
   static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
-  static let TemporaryPutURL = "https://api.parse.com/1/classes/StudentLocation/qsZV0NeyZc"
   static let Results = "results"
   static let ObjectID = "objectId"
   static let UniqueKey = "uniqueKey"
@@ -68,7 +67,7 @@ struct MapViewConstants {
 }
 
 struct DefaultStudentInformationConstants {
-  static let UdacityHomePage = "www.udacity.com"
+  static let UdacityHomePage = "https://www.udacity.com/"
 }
 
 struct ActionSheetConstants {

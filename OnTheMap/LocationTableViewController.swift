@@ -82,7 +82,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   func refresh() {
-    
+    tableView.reloadData()
   }
   
   func logout() {

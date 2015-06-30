@@ -11,6 +11,7 @@ import MapKit
 
 class PostInformationViewController: UIViewController, MKMapViewDelegate, UITextViewDelegate
 {
+  let mapLocations = OnTheMapLocations.sharedCollection
   var locationToSubmit: CLLocation?
   var userWantsToOverwriteLocation: Bool?
   var objectIdForUserName: String?
@@ -129,6 +130,16 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     })
   }
   
+  func presentErrorAlert() {
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
+    let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
+    errorActionSheet.addAction(tryAgain)
+    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    errorActionSheet.addAction(cancel)
+    presentViewController(errorActionSheet, animated: true, completion:nil)
+  }
+
+  
   func addUserLocationAnnotationToMap(atLocation location: CLLocation) {
     locationToSubmit = location
     let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
@@ -141,7 +152,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   func updateUIForMapView() {
-    UIView.animateWithDuration(1.5, animations: {
+    UIView.animateWithDuration(1.0, animations: {
       self.bottomView.alpha = -1.0
       self.locationTextView.alpha = -1.0
       self.searchButton.alpha = -1.0
@@ -152,7 +163,6 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         if finished {
           self.bottomView.alpha = 1.0
           self.bottomView.backgroundColor = UIColor.clearColor()
-          // self.bottomView.userInteractionEnabled = false
           self.bottomView.bringSubviewToFront(self.submitButton)
           self.locationTextView.hidden = true
           self.submitButton.hidden = false
@@ -168,50 +178,68 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   @IBAction func submitLocationToServer() {
-    println("submit information")
-    println("\(userWantsToOverwriteLocation) user wants to overwrite")
-    var alertTitleAndMessage: (String?, String?)
     if let overwrite = userWantsToOverwriteLocation {
+      // create the parameters needed to post / put to the server
       let studentInformationToPost = createStudentInformationDictionaryToPost()
+      // make a new NSDictionary with the objectID included so that we can create a new StudentLocation struct
+      let studentInformationWithObjectID = studentInformationToPostWithObjectID(studentInformationToPost)
       if overwrite {
-        let putSessionURL = "https://api.parse.com/1/classes/StudentLocation/" + objectIdForUserName!
+        // add the "/" before the objectId and then add it to the Parse URL
+        let objectIdForURL = "/" + objectIdForUserName!
+        let putSessionURL = ParseAPIConstants.ParseURL + objectIdForURL
         ParseAPISession.putStudentLocationSession(studentInformationToPost, urlWithObjectId: putSessionURL) { (success, completionMessage) in
-          println("\(success), \(completionMessage)")
-          if !success {
-            alertTitleAndMessage = ("Upload Failed", "Location Not Updated")
-            println("\(alertTitleAndMessage.0)")
-          } else {
-            alertTitleAndMessage = completionMessage
-            println("\(alertTitleAndMessage.0)")
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-              let completionAlert = UIAlertController(title: alertTitleAndMessage.0, message: alertTitleAndMessage.1, preferredStyle: .Alert)
-              let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { Void in self.dismissViewControllerAnimated(true, completion: nil) })
-              completionAlert.addAction(dismiss)
-              self.presentViewController(completionAlert, animated: true, completion: nil)
-            })
+          if success {
+            println("sucess")
+            // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
+            let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
+            // remove any locations in the collection that have the same objectID as the location 
+            // that was just posted
+            self.mapLocations.removeStudentLocationForObjectID(studentLocation.objectID)
+            // add the StudentLocation to the collection to mirror what was added to the server
+            self.mapLocations.addLocationToCollection(studentLocation)
           }
+          println("back to main thread for alert")
+          dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            self.displayPostInformationCompletionMessage(completionMessage, forSuccesfulOrFailedSession: success)
+          })
         }
-      } //else {
-//        ParseAPISession.postStudentLocationSession(studentInformationToPost) { (success, message) in
-//          if !success {
-//            alertTitleAndMessage = ("Upload Failed", "Location Not Added")
-//            
-//          } else {
-//            
-//            alertTitleAndMessage = message
-//            
-//          }
-//        }
-//      }
-//        println("\(alertTitleAndMessage.0)")
-//        let completionAlert = UIAlertController(title: alertTitleAndMessage.0, message: alertTitleAndMessage.1, preferredStyle: .Alert)
-//        let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { Void in self.dismissViewControllerAnimated(true, completion: nil) })
-//        completionAlert.addAction(dismiss)
-//        presentViewController(completionAlert, animated: true, completion: nil)
+      } else {
+        ParseAPISession.postStudentLocationSession(studentInformationToPost) { (success, completionMessage) in
+          if success {
+            // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
+            let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
+            // add the StudentLocation to the collection to mirror what was added to the server
+            self.mapLocations.addLocationToCollection(studentLocation)
+          }
+          dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            self.displayPostInformationCompletionMessage(completionMessage, forSuccesfulOrFailedSession: success)
+          })
+        }
+      }
     }
   }
   
-  func createStudentInformationDictionaryToPost() -> NSDictionary {
+  func studentInformationToPostWithObjectID(studentInformation: NSMutableDictionary) -> NSDictionary {
+    studentInformation.setValue(self.objectIdForUserName, forKey: ParseAPIConstants.ObjectID)
+    let studentInformationWithObjectID = NSDictionary(dictionary: studentInformation)
+    return studentInformationWithObjectID
+  }
+  
+  func displayPostInformationCompletionMessage(message: (String?, String?), forSuccesfulOrFailedSession success: Bool) {
+    let completionAlert = UIAlertController(title: message.0, message: message.1, preferredStyle: .Alert)
+    if success {
+      println("alert message")
+      let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { Void in
+        self.dismissViewControllerAnimated(true, completion: nil) })
+      completionAlert.addAction(dismiss)
+    } else {
+      let dismiss = UIAlertAction(title: "OK", style: .Default, handler: nil)
+      completionAlert.addAction(dismiss)
+    }
+    self.presentViewController(completionAlert, animated: true, completion: nil)
+  }
+  
+  func createStudentInformationDictionaryToPost() -> NSMutableDictionary {
     let defaults = NSUserDefaults.standardUserDefaults()
     let udacityUserName = defaults.stringForKey("userName")
     
@@ -222,7 +250,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       urlToSubmit = urlTextView.text
     }
     
-    let studentInformation = NSDictionary(dictionary: [
+    let studentInformation = NSMutableDictionary(dictionary: [
       ParseAPIConstants.UniqueKey : udacityUserName!,
       ParseAPIConstants.FirstName : NameConstants.FirstName,
       ParseAPIConstants.LastName : NameConstants.LastName,
@@ -231,7 +259,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       ParseAPIConstants.Latitude : locationToSubmit!.coordinate.latitude,
       ParseAPIConstants.Longitude : locationToSubmit!.coordinate.longitude
       ])
-    
+    // return an NSMutableDictionary so that we can add the objectID to it later
     return studentInformation
   }
   
@@ -240,20 +268,20 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     let locationChoiceActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleMultipleMatches, message: ActionSheetConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
     
     let firstLocationAddressLines = placemarks[0].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
-    let firstLocation = UIAlertAction(title: firstLocationAddressLines[0], style: .Default, handler: { Void in
+    let firstLocation = UIAlertAction(title: "\(firstLocationAddressLines[0], firstLocationAddressLines[1])", style: .Default, handler: { Void in
       let location =  placemarks[0].location
       self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(firstLocation)
     
     let secondLocationAddressLines = placemarks[1].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
-    let secondLocation = UIAlertAction(title: secondLocationAddressLines[0], style: .Default, handler: { Void in
+    let secondLocation = UIAlertAction(title: "\(secondLocationAddressLines[0], secondLocationAddressLines[1])", style: .Default, handler: { Void in
       let location =  placemarks[1].location
       self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(secondLocation)
     
     if placemarks.count > 2 {
       let thirdLocationAddressLines = placemarks[2].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
-      let thirdLocation = UIAlertAction(title: thirdLocationAddressLines[0], style: .Default, handler: { Void in
+      let thirdLocation = UIAlertAction(title: "\(thirdLocationAddressLines[0], thirdLocationAddressLines[1])", style: .Default, handler: { Void in
         let location =  placemarks[2].location
         self.addUserLocationAnnotationToMap(atLocation: location) })
       locationChoiceActionSheet.addAction(thirdLocation)
@@ -263,15 +291,6 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     locationChoiceActionSheet.addAction(cancel)
     
     presentViewController(locationChoiceActionSheet, animated: true, completion: nil)
-  }
-  
-  func presentErrorAlert() {
-    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
-    let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
-    errorActionSheet.addAction(tryAgain)
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
-    errorActionSheet.addAction(cancel)
-    presentViewController(errorActionSheet, animated: true, completion:nil)
   }
   
   func resetUI() {
