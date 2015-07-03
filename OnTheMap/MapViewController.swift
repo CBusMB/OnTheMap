@@ -56,8 +56,8 @@ class MapViewController: UIViewController, MKMapViewDelegate
     
     ParseAPISession.getStudentLocationsTask { (success, completionMessage) -> Void in
       if !success {
-        let errorAlert = UIAlertController(title: ActionSheetConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
-        let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+        let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
+        let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
         errorAlert.addAction(cancel)
         dispatch_async(dispatch_get_main_queue(), { () in
           self.presentViewController(errorAlert, animated: true, completion: nil)
@@ -106,17 +106,20 @@ class MapViewController: UIViewController, MKMapViewDelegate
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
+    } else {
+      // setting userWantsToOverwriteLocation to false initiates segue
+      userWantsToOverwriteLocation = false
     }
   }
   
   func logout() {
-    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .Alert)
-    let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
+    let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
+    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
     self.mapLocations.removeAllLocations()
     self.annotations.removeAll(keepCapacity: false) })
     logoutActionSheet.addAction(logoutConfirmed)
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
     presentViewController(logoutActionSheet, animated: true, completion: nil)
   }
@@ -142,12 +145,18 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
-    var urlString = NSString(string: view.annotation.subtitle!)
-    if urlString.substringToIndex(6) != "http:\\\\" {
-      urlString = "http:\\\\" + (urlString as String)
+    let https = "https://"
+    let www = "www."
+    var urlString = view.annotation.subtitle!
+    if !urlString.hasPrefix(www) {
+      urlString = www.stringByAppendingString(view.annotation.subtitle!)
     }
+    if !urlString.hasPrefix(https) {
+      urlString = https.stringByAppendingString(urlString)
+    }
+    
     println("\(urlString)")
-    if let studentURL = NSURL(string: urlString as! String) {
+    if let studentURL = NSURL(string: urlString) {
       println("\(studentURL)")
       if control == view.rightCalloutAccessoryView {
         let application = UIApplication.sharedApplication()

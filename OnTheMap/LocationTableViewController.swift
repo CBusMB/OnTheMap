@@ -12,7 +12,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
 {
   let mapLocations = OnTheMapLocations.sharedCollection
   var objectIdForUserName: String?
-  var userWantsToOverwriteLocation: Bool? {
+  private var userWantsToOverwriteLocation: Bool? {
     didSet {
       dropPin()
     }
@@ -61,24 +61,30 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    if segue.identifier == "mapToPost" {
+    if segue.identifier == "tableToPost" {
       let postInformationViewController = segue.destinationViewController as! PostInformationViewController
       postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
       postInformationViewController.objectIdForUserName = objectIdForUserName
     }
   }
   
-  func confirmUserWantsToOverwriteLocation() -> Bool {
-    var confirmOverwrite = true
-    let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
-    let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: nil)
-    let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
-      confirmOverwrite = false })
-    confirmationAlert.addAction(overwrite)
-    confirmationAlert.addAction(addNewLocation)
-    presentViewController(confirmationAlert, animated: true, completion: nil)
-    
-    return confirmOverwrite
+  func confirmUserWantsToOverwriteLocation() {
+    let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
+    let objectId = mapLocations.checkForMatchingObjectId(byUserName: userName!)
+    if objectId.0 {
+      objectIdForUserName = objectId.1!
+      let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
+      let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: { Void in
+        self.userWantsToOverwriteLocation = true })
+      let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
+        self.userWantsToOverwriteLocation = false })
+      confirmationAlert.addAction(overwrite)
+      confirmationAlert.addAction(addNewLocation)
+      presentViewController(confirmationAlert, animated: true, completion: nil)
+    } else {
+      // setting userWantsToOverwriteLocation to false initiates segue
+      userWantsToOverwriteLocation = false
+    }
   }
   
   func refresh() {
@@ -86,12 +92,12 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   func logout() {
-    let logoutActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleConfirmation, message: ActionSheetConstants.AlertActionMessageLogout, preferredStyle: .Alert)
-    let logoutConfirmed = UIAlertAction(title: ActionSheetConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
+    let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
+    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
       self.mapLocations.removeAllLocations() })
     logoutActionSheet.addAction(logoutConfirmed)
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
     presentViewController(logoutActionSheet, animated: true, completion: nil)
   }

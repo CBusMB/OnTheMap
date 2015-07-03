@@ -55,9 +55,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   func presentErrorActionSheet(message completionMessage: String) {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
-    let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
+    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
     errorActionSheet.addAction(tryAgain)
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     errorActionSheet.addAction(cancel)
     dispatch_async(dispatch_get_main_queue(), { () -> Void in
       self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })

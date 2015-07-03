@@ -70,7 +70,7 @@ struct DefaultStudentInformationConstants {
   static let UdacityHomePage = "https://www.udacity.com/"
 }
 
-struct ActionSheetConstants {
+struct AlertConstants {
   static let AlertActionTitleConfirmation = "Confirmation Required"
   static let AlertActionTitleLogout = "Logout"
   static let AlertActionMessageLogout = "Are you sure you want to logout?"

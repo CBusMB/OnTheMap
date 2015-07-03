@@ -132,9 +132,9 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   func presentErrorAlert() {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
-    let tryAgain = UIAlertAction(title: ActionSheetConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
+    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     errorActionSheet.addAction(cancel)
     presentViewController(errorActionSheet, animated: true, completion:nil)
   }
@@ -194,7 +194,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
             let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
             // remove any locations in the collection that have the same objectID as the location 
             // that was just posted
-            self.mapLocations.removeStudentLocationForObjectID(studentLocation.objectID)
+            self.mapLocations.removeStudentLocationForObjectID(studentLocation.objectID!)
             // add the StudentLocation to the collection to mirror what was added to the server
             self.mapLocations.addLocationToCollection(studentLocation)
           }
@@ -265,29 +265,29 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
     // display (up to) the top 3 location mataches to the user and let them choose the best one
-    let locationChoiceActionSheet = UIAlertController(title: ActionSheetConstants.AlertActionTitleMultipleMatches, message: ActionSheetConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
+    let locationChoiceActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleMultipleMatches, message: AlertConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
     
-    let firstLocationAddressLines = placemarks[0].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+    let firstLocationAddressLines = placemarks[0].addressDictionary[AlertConstants.AlertActionFormattedAddressLines] as! [String]
     let firstLocation = UIAlertAction(title: "\(firstLocationAddressLines[0], firstLocationAddressLines[1])", style: .Default, handler: { Void in
       let location =  placemarks[0].location
       self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(firstLocation)
     
-    let secondLocationAddressLines = placemarks[1].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+    let secondLocationAddressLines = placemarks[1].addressDictionary[AlertConstants.AlertActionFormattedAddressLines] as! [String]
     let secondLocation = UIAlertAction(title: "\(secondLocationAddressLines[0], secondLocationAddressLines[1])", style: .Default, handler: { Void in
       let location =  placemarks[1].location
       self.addUserLocationAnnotationToMap(atLocation: location) })
     locationChoiceActionSheet.addAction(secondLocation)
     
     if placemarks.count > 2 {
-      let thirdLocationAddressLines = placemarks[2].addressDictionary[ActionSheetConstants.AlertActionFormattedAddressLines] as! [String]
+      let thirdLocationAddressLines = placemarks[2].addressDictionary[AlertConstants.AlertActionFormattedAddressLines] as! [String]
       let thirdLocation = UIAlertAction(title: "\(thirdLocationAddressLines[0], thirdLocationAddressLines[1])", style: .Default, handler: { Void in
         let location =  placemarks[2].location
         self.addUserLocationAnnotationToMap(atLocation: location) })
       locationChoiceActionSheet.addAction(thirdLocation)
     }
     
-    let cancel = UIAlertAction(title: ActionSheetConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     locationChoiceActionSheet.addAction(cancel)
     
     presentViewController(locationChoiceActionSheet, animated: true, completion: nil)
