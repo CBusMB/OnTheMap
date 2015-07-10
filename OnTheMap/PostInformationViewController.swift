@@ -210,7 +210,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       let studentInformationWithoutObjectIdToPost = createStudentInformationDictionaryWithoutObjectId()
       // make a new NSDictionary with the objectID included so that we can create a new StudentLocation struct
       let objectId = mapLocations.objectIdForUserName(studentInformationWithoutObjectIdToPost.valueForKey(ParseAPIConstants.UniqueKeyKey) as! String)
-      let studentInformationWithObjectID = createStudentInformationDictionaryWithObjectId(studentInformationWithoutObjectIdToPost, withObjectId: objectId!)
+      let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformationWithoutObjectIdToPost, withObjectId: objectId!)
       if overwrite {
         // add the "/" before the objectId and then add it to the Parse URL
         let objectIdForURL = "/" + objectId!
@@ -245,7 +245,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
-  private func createStudentInformationDictionaryWithObjectId(studentInformation: NSMutableDictionary, withObjectId objectId: String) -> NSDictionary {
+  private func createStudentInformationDictionary(fromDictionary studentInformation: NSMutableDictionary, withObjectId objectId: String) -> NSDictionary {
     studentInformation.setValue(objectId, forKey: ParseAPIConstants.ObjectIDKey)
     let studentInformationWithObjectID = NSDictionary(dictionary: studentInformation)
     return studentInformationWithObjectID

@@ -53,7 +53,7 @@ class OnTheMapLocations
   func objectIdForUserName(name: String) -> String? {
     for student in locations {
       if name == student.uniqueKey {
-        return student.objectID!
+        return student.objectID
       }
     }
     return nil

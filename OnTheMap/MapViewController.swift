@@ -23,7 +23,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
-      mapView.mapType = .Satellite
+      mapView.mapType = .Hybrid
       mapView.delegate = self
     }
   }

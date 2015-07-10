@@ -82,14 +82,13 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     if objectId.0 {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
-        self.userWantsToOverwriteLocation = true })
+        self.userWantsToOverwriteLocation = true }) // setting userWantsToOverwriteLocation initiates segue
       let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionNewLocationTitle, style: .Default, handler: { [unowned self] Void in
         self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
     } else {
-      // setting userWantsToOverwriteLocation to false initiates segue
       userWantsToOverwriteLocation = false
     }
   }

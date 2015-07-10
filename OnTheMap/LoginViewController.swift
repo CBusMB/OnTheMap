@@ -41,7 +41,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     dismissKeyboard()
     UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
-    var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
+    var udacityLoginCredentials = UdacityUser(userName: emailTextField.text.lowercaseString, password: passwordTextField.text)
     UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { [unowned self] (success, completionMessage) in
       if !success {
         if let message = completionMessage {
