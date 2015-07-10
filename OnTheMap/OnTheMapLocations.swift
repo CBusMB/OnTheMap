@@ -29,7 +29,8 @@ class OnTheMapLocations
   }
   
   func addLocationToCollection(location: StudentLocation) {
-    locations.append(location)
+    // insert the student location at the beginning of the array
+    locations.insert(location, atIndex: 0)
   }
   
   func removeAllLocations() {
@@ -49,8 +50,16 @@ class OnTheMapLocations
     return (match, objectID)
   }
   
+  func objectIdForUserName(name: String) -> String? {
+    for student in locations {
+      if name == student.uniqueKey {
+        return student.objectID!
+      }
+    }
+    return nil
+  }
+  
   func removeStudentLocationForObjectID(objectID: String) {
-    println("removing location")
     for var i = 0; i < locations.count; i++ {
       if objectID == locations[i].objectID {
         locations.removeAtIndex(i)

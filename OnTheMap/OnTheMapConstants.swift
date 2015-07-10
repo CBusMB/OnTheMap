@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Crest Technologies. All rights reserved.
 //
 
-import Foundation
 
 struct ParseAPIConstants {
   static let ParseApplicationID = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
@@ -15,14 +14,14 @@ struct ParseAPIConstants {
   static let HeaderFieldForREST = "X-Parse-REST-API-Key"
   static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
   static let Results = "results"
-  static let ObjectID = "objectId"
-  static let UniqueKey = "uniqueKey"
-  static let FirstName = "firstName"
-  static let LastName = "lastName"
-  static let MapString = "mapString"
-  static let MediaURL = "mediaURL"
-  static let Latitude = "latitude"
-  static let Longitude = "longitude"
+  static let ObjectIDKey = "objectId"
+  static let UniqueKeyKey = "uniqueKey"
+  static let FirstNameKey = "firstName"
+  static let LastNameKey = "lastName"
+  static let MapStringKey = "mapString"
+  static let MediaURLKey = "mediaURL"
+  static let LatitudeKey = "latitude"
+  static let LongitudeKey = "longitude"
   static let HttpHeaderFieldContentType = "Content-Type"
   static let ApplicationJSON = "application/json"
   static let HTTPMethodPOST = "POST"
@@ -80,11 +79,16 @@ struct AlertConstants {
   static let AlertActionTitleMultipleMatches = "Multiple matches found."
   static let AlertActionMessageChooseLocation = "Choose the best match"
   static let AlertActionFormattedAddressLines = "FormattedAddressLines"
+  static let AlertActionOverwriteMessage = "You've already added a location to the map.  Do you want to overwrite it or add a new location?"
+  static let AlertActionOverwriteTitle = "Overwrite Location?"
+  static let AlertActionOverwriteConfirmationTitle = "Overwrite"
+  static let AlertActionNewLocationTitle = "Add New Location"
 }
 
 struct SegueIdentifierConstants {
   static let MapToPostSegue = "mapToPost"
   static let TableToPostSegue = "tableToPost"
+  static let TabBarIdentifier = "tabBarController"
 }
 
 struct NameConstants {

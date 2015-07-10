@@ -19,14 +19,14 @@ struct StudentLocation {
   let coordinate: CLLocationCoordinate2D
   
   init(nameAndLocation: NSDictionary) {
-    objectID = nameAndLocation[ParseAPIConstants.ObjectID] as? String
-    uniqueKey = nameAndLocation[ParseAPIConstants.UniqueKey] as! String
-    firstName = nameAndLocation[ParseAPIConstants.FirstName] as! String
-    lastName = nameAndLocation[ParseAPIConstants.LastName] as! String
-    mapString = nameAndLocation[ParseAPIConstants.MapString] as! String
-    mediaURL = nameAndLocation[ParseAPIConstants.MediaURL] as! String
-    coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(nameAndLocation[ParseAPIConstants.Latitude] as! Double),
-      longitude: CLLocationDegrees(nameAndLocation[ParseAPIConstants.Longitude] as! Double))
+    objectID = nameAndLocation[ParseAPIConstants.ObjectIDKey] as? String
+    uniqueKey = nameAndLocation[ParseAPIConstants.UniqueKeyKey] as! String
+    firstName = nameAndLocation[ParseAPIConstants.FirstNameKey] as! String
+    lastName = nameAndLocation[ParseAPIConstants.LastNameKey] as! String
+    mapString = nameAndLocation[ParseAPIConstants.MapStringKey] as! String
+    mediaURL = nameAndLocation[ParseAPIConstants.MediaURLKey] as! String
+    coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(nameAndLocation[ParseAPIConstants.LatitudeKey] as! Double),
+      longitude: CLLocationDegrees(nameAndLocation[ParseAPIConstants.LongitudeKey] as! Double))
   }
 }
 

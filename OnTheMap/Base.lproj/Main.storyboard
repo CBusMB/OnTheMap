@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
@@ -81,10 +81,20 @@
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="WAn-pT-5VT">
                                 <rect key="frame" x="282" y="361" width="37" height="37"/>
                             </activityIndicatorView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AKe-j0-bOa">
+                                <rect key="frame" x="118" y="519" width="364" height="61"/>
+                                <state key="normal" image="facebook">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="logInWithFacebook" destination="vXZ-lx-hvc" eventType="touchUpInside" id="ASA-cU-in6"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.56663307620778136" blue="0.19504052633865165" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="6QJ-j9-NLX" firstAttribute="top" secondItem="Mqo-5u-X4u" secondAttribute="bottom" constant="8" symbolic="YES" id="6Ki-WB-BFm"/>
+                            <constraint firstAttribute="bottom" secondItem="AKe-j0-bOa" secondAttribute="bottom" constant="20" symbolic="YES" id="6wo-ea-pXv"/>
                             <constraint firstItem="6QJ-j9-NLX" firstAttribute="leading" secondItem="Mqo-5u-X4u" secondAttribute="leading" id="7lT-8Q-Cea"/>
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="6QJ-j9-NLX" secondAttribute="bottom" constant="93" id="Ca6-Ev-sc9"/>
                             <constraint firstItem="Mqo-5u-X4u" firstAttribute="trailing" secondItem="xoV-hZ-noh" secondAttribute="trailing" id="Epi-96-lf4"/>
@@ -100,6 +110,7 @@
                             <constraint firstItem="8am-Xv-M70" firstAttribute="top" secondItem="GEJ-9R-GQo" secondAttribute="bottom" constant="8" symbolic="YES" id="o76-4o-gIR"/>
                             <constraint firstItem="WAn-pT-5VT" firstAttribute="top" secondItem="xoV-hZ-noh" secondAttribute="bottom" constant="8" id="ohK-H4-PcK"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="top" secondItem="8am-Xv-M70" secondAttribute="bottom" constant="51" id="rbg-No-fbY"/>
+                            <constraint firstItem="AKe-j0-bOa" firstAttribute="centerX" secondItem="6QJ-j9-NLX" secondAttribute="centerX" id="t5h-Hr-ZLY"/>
                             <constraint firstItem="GEJ-9R-GQo" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" symbolic="YES" id="tyI-f2-TJ3"/>
                             <constraint firstItem="Tyr-F3-knz" firstAttribute="leading" secondItem="xoV-hZ-noh" secondAttribute="leading" id="v3P-Gr-8LA"/>
                             <constraint firstAttribute="centerX" secondItem="WAn-pT-5VT" secondAttribute="centerX" constant="-0.5" id="wXh-fE-DTI"/>
@@ -501,6 +512,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="facebook" width="364" height="61"/>
         <image name="list" width="32" height="32"/>
         <image name="map" width="32" height="32"/>
         <image name="udacity" width="492" height="492"/>

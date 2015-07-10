@@ -12,8 +12,8 @@ import MapKit
 class MapViewController: UIViewController, MKMapViewDelegate
 {
   var annotations = [MKPointAnnotation]()
-  let mapLocations = OnTheMapLocations.sharedCollection
-  var objectIdForUserName: String?
+  var mapLocations = OnTheMapLocations.sharedCollection
+  
   private var userWantsToOverwriteLocation: Bool? {
     didSet {
       // as soon as the user confirms to overwrite / make new location, we "drop the pin" and segue to the next vc
@@ -27,6 +27,8 @@ class MapViewController: UIViewController, MKMapViewDelegate
       mapView.delegate = self
     }
   }
+  
+  // MARK: - Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -44,17 +46,20 @@ class MapViewController: UIViewController, MKMapViewDelegate
     // locationsCollection is empty first time the view loads / appears.  When returning from posting a new location,
     // addLocationPinsToMap will add the new location to the map without going out to the network
     if !mapLocations.locationsCollection.isEmpty {
+      mapView.removeAnnotations(annotations)
+      annotations.removeAll(keepCapacity: false)
       addLocationPinsToMap()
-    }
+     }
   }
+  
+  // MARK: - Network calls
   
   func getStudentLocations() {
     if !annotations.isEmpty {
-      mapView.removeAnnotations(annotations)
       mapLocations.removeAllLocations()
     }
     
-    ParseAPISession.getStudentLocationsTask { (success, completionMessage) -> Void in
+    ParseAPISession.getStudentLocationsTask { [unowned self] (success, completionMessage) -> Void in
       if !success {
         let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -71,6 +76,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   private func addLocationPinsToMap() {
+    mapView.removeAnnotations(annotations)
     for location in mapLocations.locationsCollection {
       let annotation = MKPointAnnotation()
       annotation.coordinate = location.coordinate
@@ -81,15 +87,16 @@ class MapViewController: UIViewController, MKMapViewDelegate
     mapView.addAnnotations(annotations)
   }
   
-  func dropPin() {
+  // MARK: - Navigation
+  
+  private func dropPin() {
     performSegueWithIdentifier(SegueIdentifierConstants.MapToPostSegue, sender: self)
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    if segue.identifier == "mapToPost" {
+    if segue.identifier == SegueIdentifierConstants.MapToPostSegue {
       let postInformationViewController = segue.destinationViewController as! PostInformationViewController
       postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
-      postInformationViewController.objectIdForUserName = objectIdForUserName
     }
   }
   
@@ -97,11 +104,10 @@ class MapViewController: UIViewController, MKMapViewDelegate
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
     let objectId = mapLocations.checkForMatchingObjectId(byUserName: userName!)
     if objectId.0 {
-      objectIdForUserName = objectId.1!
-      let confirmationAlert = UIAlertController(title: "Overwrite Location?", message: "You've already added a location to the map.  Do you want to overwrite it or add a new location?", preferredStyle: .Alert)
-      let overwrite = UIAlertAction(title: "Overwrite", style: .Default, handler: { Void in
+      let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
+      let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
         self.userWantsToOverwriteLocation = true })
-      let addNewLocation = UIAlertAction(title: "Add New Location", style: .Default, handler: { Void in
+      let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionNewLocationTitle, style: .Default, handler: { [unowned self] Void in
         self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
@@ -114,7 +120,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   func logout() {
     let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
-    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
+    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { [unowned self] Void in
       self.dismissViewControllerAnimated(true, completion: nil)
     self.mapLocations.removeAllLocations()
     self.annotations.removeAll(keepCapacity: false) })
@@ -127,11 +133,10 @@ class MapViewController: UIViewController, MKMapViewDelegate
   // MARK: - MKMapViewDelegate
   
   func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
-    let reuseIdentifier = MapViewConstants.ReuseIdentifier
-    var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseIdentifier) as? MKPinAnnotationView
+    var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(MapViewConstants.ReuseIdentifier) as? MKPinAnnotationView
     
     if pinAnnotationView == nil {
-      pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
+      pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: MapViewConstants.ReuseIdentifier)
       pinAnnotationView!.canShowCallout = true
       pinAnnotationView!.pinColor = .Red
       pinAnnotationView!.rightCalloutAccessoryView = UIButton.buttonWithType(.DetailDisclosure) as! UIButton
@@ -146,18 +151,15 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
     let https = "https://"
-    let www = "www."
+    let http = "http://"
+    let googleSearch = "https://google.com/search?q="
     var urlString = view.annotation.subtitle!
-    if !urlString.hasPrefix(www) {
-      urlString = www.stringByAppendingString(view.annotation.subtitle!)
-    }
-    if !urlString.hasPrefix(https) {
-      urlString = https.stringByAppendingString(urlString)
+    
+    if !urlString.hasPrefix(https) && !urlString.hasPrefix(http) {
+      urlString = googleSearch.stringByAppendingString(urlString)
     }
     
-    println("\(urlString)")
     if let studentURL = NSURL(string: urlString) {
-      println("\(studentURL)")
       if control == view.rightCalloutAccessoryView {
         let application = UIApplication.sharedApplication()
         application.openURL(studentURL)

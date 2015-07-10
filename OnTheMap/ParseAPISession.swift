@@ -22,7 +22,6 @@ class ParseAPISession
       } else {
         var jsonError: NSError?
         let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary
-        println("\(jsonData)")
         if jsonError != nil {
           locationsCompletionHandler(success: false, completionMessage: ErrorMessages.JsonErrorMessage)
         } else {
@@ -46,7 +45,6 @@ class ParseAPISession
   }
   
   class func postStudentLocationSession(studentInformation: NSDictionary, completionHandler: (success: Bool, message: (String?, String?)) -> Void) {
-    println("postStudentLocationSession")
     let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
     request.HTTPMethod = ParseAPIConstants.HTTPMethodPOST
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
@@ -82,19 +80,15 @@ class ParseAPISession
     request.HTTPBody = NSJSONSerialization.dataWithJSONObject(studentInformation, options: nil, error: &networkError)
     
     let session = NSURLSession.sharedSession()
-    println("init session")
     let task = session.dataTaskWithRequest(request) { data, response, error in
       if error != nil {
         completionHandler(success: false, message: (ErrorMessages.NetworkErrorMessage, "Location Not Updated"))
       } else {
         var jsonError: NSError?
         if let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary {
-        println("\(jsonData)")
           if jsonError != nil {
-            println("error")
             completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, "Location Not Updated"))
           } else {
-            println("calling completion handler")
             completionHandler(success: true, message: ("Upload Complete", "Location Updated"))
           }
         } else {

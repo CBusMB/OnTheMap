@@ -10,12 +10,12 @@ import UIKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate
 {
-
   @IBOutlet weak var emailTextField: UITextField! {
     didSet {
       emailTextField.delegate = self
     }
   }
+  
   @IBOutlet weak var passwordTextField: UITextField! {
     didSet {
       passwordTextField.delegate = self
@@ -33,12 +33,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   
+  @IBAction func logInWithFacebook() {
+    loginToUdacity()
+  }
+  
   @IBAction func loginToUdacity() {
     dismissKeyboard()
     UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text, password: passwordTextField.text)
-    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { (success, completionMessage) in
+    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { [unowned self] (success, completionMessage) in
       if !success {
         if let message = completionMessage {
           self.presentErrorActionSheet(message: message)
@@ -46,8 +50,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
       } else {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
           let storyboard = UIStoryboard(name: "Main", bundle: nil)
-          let tabBarController = storyboard.instantiateViewControllerWithIdentifier("tabBarController") as! UITabBarController
-          self.presentViewController(tabBarController, animated: true, completion: { Void in self.resetUI() })
+          let tabBarController = storyboard.instantiateViewControllerWithIdentifier(SegueIdentifierConstants.TabBarIdentifier) as! UITabBarController
+          self.presentViewController(tabBarController, animated: true, completion: { [unowned self] Void in self.resetUI() })
         })
       }
     }
@@ -55,7 +59,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   func presentErrorActionSheet(message completionMessage: String) {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
-    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
+    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { [unowned self] Void in self.loginToUdacity() })
     errorActionSheet.addAction(tryAgain)
     let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     errorActionSheet.addAction(cancel)
