@@ -13,7 +13,21 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
 {
   let mapLocations = OnTheMapLocations.sharedCollection
   var locationToSubmit: CLLocation?
-  var userWantsToOverwriteLocation: Bool?
+  var userWantsToOverwriteLocation: Bool? {
+    didSet {
+      // if this var is set to TRUE we do a background fetch of the objectIDs for the userName
+      if userWantsToOverwriteLocation == true {
+        ParseAPISession.queryStudentLocationSession(byUserName: NSUserDefaults.standardUserDefaults().stringForKey("userName")!) {
+          [unowned self] (success, objectIDs) -> Void in
+          if success {
+            self.studentObjectIDs = objectIDs
+          }
+        }
+      }
+    }
+  }
+  
+  var studentObjectIDs: [String]?
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
@@ -208,40 +222,59 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     if let overwrite = userWantsToOverwriteLocation {
       // create the parameters needed to post / put to the server
       let studentInformationWithoutObjectIdToPost = createStudentInformationDictionaryWithoutObjectId()
-      // make a new NSDictionary with the objectID included so that we can create a new StudentLocation struct
-      let objectId = mapLocations.objectIdForUserName(studentInformationWithoutObjectIdToPost.valueForKey(ParseAPIConstants.UniqueKeyKey) as! String)
-      let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformationWithoutObjectIdToPost, withObjectId: objectId!)
       if overwrite {
-        // add the "/" before the objectId and then add it to the Parse URL
-        let objectIdForURL = "/" + objectId!
-        let putSessionURL = ParseAPIConstants.ParseURL + objectIdForURL
-        ParseAPISession.putStudentLocationSession(studentInformationWithObjectID, urlWithObjectId: putSessionURL) { [unowned self] (success, completionMessage) in
-          if success {
-            // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
-            let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
-            // remove any locations in the collection that have the same objectID as the location 
-            // that was just posted
-            self.mapLocations.removeStudentLocationForObjectID(studentLocation.objectID!)
-            // add the StudentLocation to the collection to mirror what was added to the server
-            self.mapLocations.addLocationToCollection(studentLocation)
-          }
-          dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            self.displayPostInformationCompletionMessage(completionMessage, forSuccesfulOrFailedSession: success)
-          })
-        }
+        updateStudentLocationOnServer(fromStudentInformation: studentInformationWithoutObjectIdToPost)
       } else {
-        ParseAPISession.postStudentLocationSession(studentInformationWithObjectID) { [unowned self] (success, completionMessage) in
-          if success {
+        createNewStudentLocationOnServer(fromStudentInformation: studentInformationWithoutObjectIdToPost)
+      }
+    }
+  }
+  
+  private func updateStudentLocationOnServer(fromStudentInformation studentInformation: NSMutableDictionary) {
+    let objectId = studentObjectIDs?.last
+    println(objectId)
+    // make a new NSDictionary with the objectID included
+    let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: objectId!)
+    
+    // add the "/" before the objectId and then add it to the Parse URL
+    let objectIdForURL = "/" + objectId!
+    let putSessionURL = ParseAPIConstants.ParseURL + objectIdForURL
+    ParseAPISession.putStudentLocationSession(studentInformationWithObjectID, urlWithObjectId: putSessionURL) { [unowned self] (success, completionMessage) in
+      if success {
+        // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
+        let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
+        // remove any locations in the collection that have the same objectID as the location
+        // that was just posted
+        self.mapLocations.removeStudentLocationForObjectID(studentLocation.objectID!)
+        // add the StudentLocation to the collection to mirror what was added to the server
+        self.mapLocations.addLocationToCollection(studentLocation)
+      }
+      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        self.displayPostInformationCompletionMessage(completionMessage, forSuccessfulOrFailedSession: success)
+      })
+    }
+  }
+  
+  private func createNewStudentLocationOnServer(fromStudentInformation studentInformation: NSMutableDictionary) {
+    ParseAPISession.postStudentLocationSession(studentInformation) { [unowned self] (success, completionMessage) in
+      if success {
+        let userName = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
+        ParseAPISession.queryStudentLocationSession(byUserName: userName) { (querySuccess, objectIDs) in
+          if querySuccess {
+            let justPostedObjectID = objectIDs!.last
+            println(justPostedObjectID)
+            // make a new NSDictionary with the just posted objectID included
+            let studentInformationWithObjectID = self.createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: justPostedObjectID!)
             // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
             let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
             // add the StudentLocation to the collection to mirror what was added to the server
             self.mapLocations.addLocationToCollection(studentLocation)
           }
-          dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            self.displayPostInformationCompletionMessage(completionMessage, forSuccesfulOrFailedSession: success)
-          })
         }
       }
+      dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        self.displayPostInformationCompletionMessage(completionMessage, forSuccessfulOrFailedSession: success)
+      })
     }
   }
   
@@ -275,7 +308,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     return studentInformation
   }
   
-  private func displayPostInformationCompletionMessage(message: (String?, String?), forSuccesfulOrFailedSession success: Bool) {
+  private func displayPostInformationCompletionMessage(message: (String?, String?), forSuccessfulOrFailedSession success: Bool) {
     let completionAlert = UIAlertController(title: message.0, message: message.1, preferredStyle: .Alert)
     if success {
       let dismiss = UIAlertAction(title: "OK", style: .Default, handler: { [unowned self] Void in

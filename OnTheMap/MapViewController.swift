@@ -14,6 +14,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   var annotations = [MKPointAnnotation]()
   var mapLocations = OnTheMapLocations.sharedCollection
   
+  private var studentObjectIDs: [String]?
   private var userWantsToOverwriteLocation: Bool? {
     didSet {
       // as soon as the user confirms to overwrite / make new location, we "drop the pin" and segue to the next vc
@@ -97,25 +98,26 @@ class MapViewController: UIViewController, MKMapViewDelegate
     if segue.identifier == SegueIdentifierConstants.MapToPostSegue {
       let postInformationViewController = segue.destinationViewController as! PostInformationViewController
       postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
+      postInformationViewController.studentObjectIDs = studentObjectIDs
     }
   }
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    let objectId = mapLocations.checkForMatchingObjectId(byUserName: userName!)
-    if objectId.0 {
+    var studentExistsInCollection = mapLocations.checkForMatchingUniqueId(byUserName: userName!)
+    if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
-        self.userWantsToOverwriteLocation = true })
+          self.userWantsToOverwriteLocation = true })
       let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionNewLocationTitle, style: .Default, handler: { [unowned self] Void in
-        self.userWantsToOverwriteLocation = false })
+          self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
-    } else {
-      // setting userWantsToOverwriteLocation to false initiates segue
-      userWantsToOverwriteLocation = false
-    }
+      } else {
+        // setting userWantsToOverwriteLocation to false initiates segue
+        userWantsToOverwriteLocation = false
+      }
   }
   
   func logout() {

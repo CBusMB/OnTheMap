@@ -78,17 +78,18 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    let objectId = mapLocations.checkForMatchingObjectId(byUserName: userName!)
-    if objectId.0 {
+    var studentExistsInCollection = mapLocations.checkForMatchingUniqueId(byUserName: userName!)
+    if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
-        self.userWantsToOverwriteLocation = true }) // setting userWantsToOverwriteLocation initiates segue
+        self.userWantsToOverwriteLocation = true })
       let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionNewLocationTitle, style: .Default, handler: { [unowned self] Void in
         self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
     } else {
+      // setting userWantsToOverwriteLocation to false initiates segue
       userWantsToOverwriteLocation = false
     }
   }

@@ -36,7 +36,7 @@ class ParseAPISession
     task.resume()
   }
   
-  class func createOnTheMapLocations(fromDataSource studentNamesAndLocations: [NSDictionary]) {
+  private class func createOnTheMapLocations(fromDataSource studentNamesAndLocations: [NSDictionary]) {
     let locations = OnTheMapLocations.sharedCollection
     for nameAndLocation in studentNamesAndLocations {
       let studentLocation = StudentLocation(nameAndLocation: nameAndLocation)
@@ -98,4 +98,49 @@ class ParseAPISession
     }
     task.resume()
   }
+  
+  class func queryStudentLocationSession(byUserName userName: String, completionHandler: (success: Bool, objectIDs: [String]?) -> Void) {
+    let urlString = escapeURL(forUserName: userName)
+    let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
+    request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
+    request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)
+    
+    let session = NSURLSession.sharedSession()
+    let task = session.dataTaskWithRequest(request) { data, response, error in
+      if error != nil {
+        completionHandler(success: false, objectIDs: nil)
+      } else {
+        var jsonError: NSError?
+        if let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary {
+          println("\(jsonData)")
+          if jsonError != nil {
+            completionHandler(success: false, objectIDs: nil)
+          } else {
+            if let students = jsonData[ParseAPIConstants.Results] as? [NSDictionary] {
+            var studentObjectIds = [String]()
+            for student in students {
+              var studentObjectId = student[ParseAPIConstants.ObjectIDKey] as! String
+              studentObjectIds.append(studentObjectId)
+            }
+            completionHandler(success: true, objectIDs: studentObjectIds)
+            } else {
+              completionHandler(success: false, objectIDs: nil)
+            }
+          }
+        } else {
+          completionHandler(success: false, objectIDs: nil)
+        }
+      }
+    }
+    task.resume()
+  }
+  
+  private class func escapeURL(forUserName userName: String) -> String {
+    let urlString = ParseAPIConstants.ParseURL + "?where={\"\(ParseAPIConstants.UniqueKeyKey)\":\"\(userName)\"}"
+    println(urlString)
+    let escapedURLString = urlString.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+    println(escapedURLString)
+    return escapedURLString!
+  }
+  
 }
