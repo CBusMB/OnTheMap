@@ -11,7 +11,7 @@ import MapKit
 
 class ParseAPISession
 {
-  class func getStudentLocationsTask(locationsCompletionHandler: (success: Bool, completionMessage: String?) -> Void) {
+  class func getStudentLocationsSession(locationsCompletionHandler: (success: Bool, completionMessage: String?) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
     request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)

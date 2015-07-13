@@ -78,7 +78,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    var studentExistsInCollection = mapLocations.checkForMatchingUniqueId(byUserName: userName!)
+    var studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
     if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
@@ -99,7 +99,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
       mapLocations.removeAllLocations()
     }
     
-    ParseAPISession.getStudentLocationsTask { [unowned self] (success, completionMessage) -> Void in
+    ParseAPISession.getStudentLocationsSession { [unowned self] (success, completionMessage) -> Void in
       if !success {
         let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)

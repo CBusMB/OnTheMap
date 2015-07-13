@@ -182,6 +182,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   private func addUserLocationAnnotationToMap(atLocation location: CLLocation) {
+    // assign the location from the geocode to the locationToSubmit instance variable
     locationToSubmit = location
     let regionCenter = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
     let mapRegion = MKCoordinateRegion(center: regionCenter, span: MKCoordinateSpanMake(0.25, 0.25))
@@ -192,32 +193,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     updateUIForMapView()
   }
   
-  func updateUIForMapView() {
-    UIView.animateWithDuration(1.0, animations: {
-      self.bottomView.alpha = -1.0
-      self.locationTextView.alpha = -1.0
-      self.searchButton.alpha = -1.0
-      self.locationQuestionTopLabel.alpha = -1.0
-      self.locationQuestionMiddleLabel.alpha = -1.0
-      self.locationQuestionBottomLabel.alpha = -1.0 })
-      { [unowned self] (finished) in
-        if finished {
-          self.bottomView.alpha = 1.0
-          self.bottomView.backgroundColor = UIColor.clearColor()
-          self.bottomView.bringSubviewToFront(self.submitButton)
-          self.locationTextView.hidden = true
-          self.submitButton.hidden = false
-          self.searchButton.hidden = true
-          self.locationQuestionTopLabel.hidden = true
-          self.locationQuestionMiddleLabel.hidden = true
-          self.locationQuestionBottomLabel.hidden = true
-          self.urlTextView.hidden = false
-          self.browseWebButton.hidden = false
-          self.mapView.hidden = false
-        }
-      }
-  }
-  
+  // MARK: Post / Put calls to web service
   @IBAction func submitLocationToServer() {
     if let overwrite = userWantsToOverwriteLocation {
       // create the parameters needed to post / put to the server
@@ -319,6 +295,33 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       completionAlert.addAction(dismiss)
     }
     self.presentViewController(completionAlert, animated: true, completion: nil)
+  }
+  
+  // MARK: UI update, reset, cancel
+  func updateUIForMapView() {
+    UIView.animateWithDuration(1.0, animations: {
+      self.bottomView.alpha = -1.0
+      self.locationTextView.alpha = -1.0
+      self.searchButton.alpha = -1.0
+      self.locationQuestionTopLabel.alpha = -1.0
+      self.locationQuestionMiddleLabel.alpha = -1.0
+      self.locationQuestionBottomLabel.alpha = -1.0 })
+      { [unowned self] (finished) in
+        if finished {
+          self.bottomView.alpha = 1.0
+          self.bottomView.backgroundColor = UIColor.clearColor()
+          self.bottomView.bringSubviewToFront(self.submitButton)
+          self.locationTextView.hidden = true
+          self.submitButton.hidden = false
+          self.searchButton.hidden = true
+          self.locationQuestionTopLabel.hidden = true
+          self.locationQuestionMiddleLabel.hidden = true
+          self.locationQuestionBottomLabel.hidden = true
+          self.urlTextView.hidden = false
+          self.browseWebButton.hidden = false
+          self.mapView.hidden = false
+        }
+    }
   }
   
   private func resetUI() {

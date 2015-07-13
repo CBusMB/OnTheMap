@@ -33,6 +33,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   
+  
+  // MARK: Login
   @IBAction func logInWithFacebook() {
     loginToUdacity()
   }
@@ -66,16 +68,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     dispatch_async(dispatch_get_main_queue(), { () -> Void in
       self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
     })
-  }
-  
-  func resetUI() {
-    activityIndicator.stopAnimating()
-    view.alpha = 1.0
-  }
-  
-  func dismissKeyboard() {
-    textFieldShouldReturn(emailTextField)
-    textFieldShouldReturn(passwordTextField)
   }
   
   struct LinkAttributes {
@@ -114,6 +106,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     unsubscribeFromKeyboardNotifications()
   }
   
+  func resetUI() {
+    activityIndicator.stopAnimating()
+    view.alpha = 1.0
+  }
+  
   // MARK: textView, textField, keyboard methods
   func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
     return true
@@ -126,6 +123,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   func textFieldShouldReturn(textField: UITextField) -> Bool {
     textField.resignFirstResponder()
     return true
+  }
+  
+  func dismissKeyboard() {
+    textFieldShouldReturn(emailTextField)
+    textFieldShouldReturn(passwordTextField)
   }
   
   func keyboardWillShow(notification: NSNotification) {
