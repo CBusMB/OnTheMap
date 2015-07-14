@@ -46,7 +46,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
     super.viewWillAppear(animated)
     // locationsCollection is empty first time the view loads / appears.  When returning from posting a new location,
     // addLocationPinsToMap will add the new location to the map without going out to the network
-    if !mapLocations.locationsCollection.isEmpty {
+    if !mapLocations.locations.isEmpty {
       mapView.removeAnnotations(annotations)
       annotations.removeAll(keepCapacity: false)
       addLocationPinsToMap()
@@ -78,7 +78,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   private func addLocationPinsToMap() {
     mapView.removeAnnotations(annotations)
-    for location in mapLocations.locationsCollection {
+    for location in mapLocations.locations {
       let annotation = MKPointAnnotation()
       annotation.coordinate = location.coordinate
       annotation.title = "\(location.firstName) \(location.lastName)"
@@ -104,7 +104,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    var studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
+    let studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
     if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
@@ -114,10 +114,10 @@ class MapViewController: UIViewController, MKMapViewDelegate
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
-      } else {
-        // setting userWantsToOverwriteLocation to false initiates segue
-        userWantsToOverwriteLocation = false
-      }
+    } else {
+      // setting userWantsToOverwriteLocation to false initiates segue
+      userWantsToOverwriteLocation = false
+    }
   }
   
   func logout() {

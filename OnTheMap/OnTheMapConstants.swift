@@ -26,6 +26,10 @@ struct ParseAPIConstants {
   static let ApplicationJSON = "application/json"
   static let HTTPMethodPOST = "POST"
   static let HTTPMethodPUT = "PUT"
+  static let UploadComplete = "Upload Complete"
+  static let LocationUpdated = "Location Updated"
+  static let UploadSuccessful = "Upload Successful"
+  static let LocationAdded = "Location Added"
 }
 
 struct UdacityLoginSessionConstants {
@@ -47,6 +51,8 @@ struct ErrorMessages {
   static let JsonErrorMessage = "Error, could not read response from server"
   static let GenericErrorMessage = "Error"
   static let GeocodingErrorMessage = "Could not find location, please try again"
+  static let LocationNotUpdated = "Location Not Updated"
+  static let LocationNotAdded = "Location Not Added"
 }
 
 struct TableViewConstants {

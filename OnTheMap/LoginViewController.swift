@@ -33,7 +33,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   
-  
   // MARK: Login
   @IBAction func logInWithFacebook() {
     loginToUdacity()

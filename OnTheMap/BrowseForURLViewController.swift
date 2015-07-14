@@ -33,6 +33,7 @@ class BrowseForURLViewController: UIViewController, UIWebViewDelegate
   }
   
   func disableWebNavigationButtonsOnLoad(button: UIBarButtonItem) {
+    // web navigation buttons are disabled by default
     button.enabled = false
   }
   

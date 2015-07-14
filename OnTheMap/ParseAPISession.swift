@@ -52,18 +52,17 @@ class ParseAPISession
     request.addValue(ParseAPIConstants.ApplicationJSON, forHTTPHeaderField: ParseAPIConstants.HttpHeaderFieldContentType)
     var networkError: NSError?
     request.HTTPBody = NSJSONSerialization.dataWithJSONObject(studentInformation, options: nil, error: &networkError)
-    
     let session = NSURLSession.sharedSession()
     let task = session.dataTaskWithRequest(request) { data, response, error in
       if error != nil {
-        completionHandler(success: false, message: (ErrorMessages.NetworkErrorMessage, "Location Not Added"))
+        completionHandler(success: false, message: (ErrorMessages.NetworkErrorMessage, ErrorMessages.LocationNotAdded))
       } else {
         var jsonError: NSError?
         let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary
         if jsonError != nil {
-          completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, "Location Not Added"))
+          completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, ErrorMessages.LocationNotAdded))
         } else {
-          completionHandler(success: true, message: ("Upload Succesful", "Location Added"))
+          completionHandler(success: true, message: (ParseAPIConstants.UploadSuccessful, ParseAPIConstants.LocationAdded))
         }
       }
     }
@@ -78,21 +77,20 @@ class ParseAPISession
     request.addValue(ParseAPIConstants.ApplicationJSON, forHTTPHeaderField: ParseAPIConstants.HttpHeaderFieldContentType)
     var networkError: NSError?
     request.HTTPBody = NSJSONSerialization.dataWithJSONObject(studentInformation, options: nil, error: &networkError)
-    
     let session = NSURLSession.sharedSession()
     let task = session.dataTaskWithRequest(request) { data, response, error in
       if error != nil {
-        completionHandler(success: false, message: (ErrorMessages.NetworkErrorMessage, "Location Not Updated"))
+        completionHandler(success: false, message: (ErrorMessages.NetworkErrorMessage, ErrorMessages.LocationNotUpdated))
       } else {
         var jsonError: NSError?
         if let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary {
           if jsonError != nil {
-            completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, "Location Not Updated"))
+            completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, ErrorMessages.LocationNotUpdated))
           } else {
-            completionHandler(success: true, message: ("Upload Complete", "Location Updated"))
+            completionHandler(success: true, message: (ParseAPIConstants.UploadComplete, ParseAPIConstants.LocationUpdated))
           }
         } else {
-          completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, "Location Not Updated"))
+          completionHandler(success: false, message: (ErrorMessages.JsonErrorMessage, ErrorMessages.LocationNotUpdated))
         }
       }
     }
@@ -104,7 +102,6 @@ class ParseAPISession
     let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
     request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)
-    
     let session = NSURLSession.sharedSession()
     let task = session.dataTaskWithRequest(request) { data, response, error in
       if error != nil {
@@ -112,7 +109,6 @@ class ParseAPISession
       } else {
         var jsonError: NSError?
         if let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary {
-          println("\(jsonData)")
           if jsonError != nil {
             completionHandler(success: false, objectIDs: nil)
           } else {
@@ -137,9 +133,7 @@ class ParseAPISession
   
   private class func escapeURL(forUserName userName: String) -> String {
     let urlString = ParseAPIConstants.ParseURL + "?where={\"\(ParseAPIConstants.UniqueKeyKey)\":\"\(userName)\"}"
-    println(urlString)
     let escapedURLString = urlString.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
-    println(escapedURLString)
     return escapedURLString!
   }
   

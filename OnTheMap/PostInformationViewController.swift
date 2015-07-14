@@ -208,7 +208,6 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   
   private func updateStudentLocationOnServer(fromStudentInformation studentInformation: NSMutableDictionary) {
     let objectId = studentObjectIDs?.last
-    println(objectId)
     // make a new NSDictionary with the objectID included
     let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: objectId!)
     
@@ -235,10 +234,9 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     ParseAPISession.postStudentLocationSession(studentInformation) { [unowned self] (success, completionMessage) in
       if success {
         let userName = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
-        ParseAPISession.queryStudentLocationSession(byUserName: userName) { (querySuccess, objectIDs) in
+        ParseAPISession.queryStudentLocationSession(byUserName: userName) { [unowned self] (querySuccess, objectIDs) in
           if querySuccess {
             let justPostedObjectID = objectIDs!.last
-            println(justPostedObjectID)
             // make a new NSDictionary with the just posted objectID included
             let studentInformationWithObjectID = self.createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: justPostedObjectID!)
             // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
@@ -261,10 +259,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   private func createStudentInformationDictionaryWithoutObjectId() -> NSMutableDictionary {
-    let defaults = NSUserDefaults.standardUserDefaults()
-    let udacityUserName = defaults.stringForKey("userName")
-    
-    var urlToSubmit: String
+    let udacityUserName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
+    let urlToSubmit: String
     if urlTextView.text == AttributedStringAttributes.urlPlaceholder {
       urlToSubmit = DefaultStudentInformationConstants.UdacityHomePage
     } else {
@@ -305,7 +301,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       self.searchButton.alpha = -1.0
       self.locationQuestionTopLabel.alpha = -1.0
       self.locationQuestionMiddleLabel.alpha = -1.0
-      self.locationQuestionBottomLabel.alpha = -1.0 })
+      self.locationQuestionBottomLabel.alpha = -1.0
+      })
       { [unowned self] (finished) in
         if finished {
           self.bottomView.alpha = 1.0
@@ -321,7 +318,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
           self.browseWebButton.hidden = false
           self.mapView.hidden = false
         }
-    }
+      }
   }
   
   private func resetUI() {

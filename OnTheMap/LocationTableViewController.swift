@@ -38,13 +38,13 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   // MARK: - Table view data source & delegate
   
   override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return mapLocations.locationsCollection.count
+    return mapLocations.locations.count
   }
   
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier(TableViewConstants.CellIdentifier, forIndexPath: indexPath) as! UITableViewCell
     cell.imageView?.image = UIImage(named: ImageConstants.PinImage)
-    cell.textLabel?.text = "\(mapLocations.locationsCollection[indexPath.row].firstName) \(mapLocations.locationsCollection[indexPath.row].lastName)"
+    cell.textLabel?.text = "\(mapLocations.locations[indexPath.row].firstName) \(mapLocations.locations[indexPath.row].lastName)"
     return cell
   }
   
@@ -53,7 +53,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     let http = "http://"
     let googleSearch = "https://google.com/search?q="
     
-    var urlString = mapLocations.locationsCollection[indexPath.row].mediaURL
+    var urlString = mapLocations.locations[indexPath.row].mediaURL
     if !urlString.hasPrefix(https) && !urlString.hasPrefix(http) {
       urlString = googleSearch.stringByAppendingString(urlString)
     }
@@ -78,7 +78,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   
   func confirmUserWantsToOverwriteLocation() {
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    var studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
+    let studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
     if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
@@ -95,7 +95,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   func getStudentLocations() {
-    if !mapLocations.locationsCollection.isEmpty {
+    if !mapLocations.locations.isEmpty {
       mapLocations.removeAllLocations()
     }
     
