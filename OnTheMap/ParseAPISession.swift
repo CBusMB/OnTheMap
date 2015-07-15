@@ -11,24 +11,26 @@ import MapKit
 
 class ParseAPISession
 {
-  class func getStudentLocationsSession(locationsCompletionHandler: (success: Bool, completionMessage: String?) -> Void) {
-    let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
+  /// :param: completionHandler returns a Bool to indicate success of the get session and a String message regarding the success/failure
+  class func getStudentLocationsSession(completionHandler: (success: Bool, completionMessage: String?) -> Void) {
+    let escapedURLString = ParseAPIConstants.ParseURLWithLimit.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+    let request = NSMutableURLRequest(URL: NSURL(string: escapedURLString!)!)
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
     request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)
     let session = NSURLSession.sharedSession()
     let task = session.dataTaskWithRequest(request) { data, response, error in
       if error != nil {
-        locationsCompletionHandler(success: false, completionMessage: ErrorMessages.NetworkErrorMessage)
+        completionHandler(success: false, completionMessage: ErrorMessages.NetworkErrorMessage)
       } else {
         var jsonError: NSError?
         let jsonData = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &jsonError) as? NSDictionary
         if jsonError != nil {
-          locationsCompletionHandler(success: false, completionMessage: ErrorMessages.JsonErrorMessage)
+          completionHandler(success: false, completionMessage: ErrorMessages.JsonErrorMessage)
         } else {
           if let parsedJSON = jsonData {
             let results = parsedJSON[ParseAPIConstants.Results] as! [NSDictionary]
             self.createOnTheMapLocations(fromDataSource: results)
-            locationsCompletionHandler(success: true, completionMessage: nil)
+            completionHandler(success: true, completionMessage: nil)
           }
         }
       }
@@ -44,6 +46,8 @@ class ParseAPISession
     }
   }
   
+  /// :param: studentInformation is a NSDictionary that contains the parameters to post to the web service
+  /// :param: completionHandler returns a Bool to indicate success of the post session and a String tuple with messages regarding the success/failure
   class func postStudentLocationSession(studentInformation: NSDictionary, completionHandler: (success: Bool, message: (String?, String?)) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
     request.HTTPMethod = ParseAPIConstants.HTTPMethodPOST
@@ -69,6 +73,9 @@ class ParseAPISession
     task.resume()
   }
   
+  /// :param: studentInformation a NSDictionary that contains the parameters to post to the web service
+  /// :param: urlWithObjectId the web service url plus the object ID for the location the user wants to update
+  /// :param: completionHandler returns a Bool to indicate success of the put session and a String tuple with messages regarding the success/failure
   class func putStudentLocationSession(studentInformation: NSDictionary, urlWithObjectId: String, completionHandler: (success: Bool, message: (String?, String?)) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: urlWithObjectId)!)
     request.HTTPMethod = ParseAPIConstants.HTTPMethodPUT
@@ -97,6 +104,8 @@ class ParseAPISession
     task.resume()
   }
   
+  /// :param: userName used to query the web service if a given unique ID (userName) exists
+  /// :param: completionHandler returns a Bool to indicate if the query was successful and an array of objectIDs for the given userName (unique ID)
   class func queryStudentLocationSession(byUserName userName: String, completionHandler: (success: Bool, objectIDs: [String]?) -> Void) {
     let urlString = escapeURL(forUserName: userName)
     let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)

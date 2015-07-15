@@ -13,6 +13,7 @@ struct ParseAPIConstants {
   static let RestAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
   static let HeaderFieldForREST = "X-Parse-REST-API-Key"
   static let ParseURL = "https://api.parse.com/1/classes/StudentLocation"
+  static let ParseURLWithLimit = "https://api.parse.com/1/classes/StudentLocation?limit=100"
   static let Results = "results"
   static let ObjectIDKey = "objectId"
   static let UniqueKeyKey = "uniqueKey"
@@ -32,8 +33,9 @@ struct ParseAPIConstants {
   static let LocationAdded = "Location Added"
 }
 
-struct UdacityLoginSessionConstants {
+struct UdacityAPIConstants {
   static let UdacitySessionURL = "https://www.udacity.com/api/session"
+  static let UdacityGetURL = "https://www.udacity.com/api/users/"
   static let HttpMethod = "POST"
   static let ApplicationJSON = "application/json"
   static let HttpHeaderFieldAccept = "Accept"
@@ -47,12 +49,12 @@ struct ErrorMessages {
   static let ErrorCode400 = 400
   static let ErrorCode403 = 403
   static let ErrorCodeMessage = "Account not found or invalid credentials"
-  static let NetworkErrorMessage = "Network Error"
+  static let NetworkErrorMessage = "Network Error, please try again later"
   static let JsonErrorMessage = "Error, could not read response from server"
-  static let GenericErrorMessage = "Error"
+  static let GenericErrorMessage = "Error, please try again later"
   static let GeocodingErrorMessage = "Could not find location, please try again"
-  static let LocationNotUpdated = "Location Not Updated"
-  static let LocationNotAdded = "Location Not Added"
+  static let LocationNotUpdated = "Location Not Updated, please try again later"
+  static let LocationNotAdded = "Location Not Added, please try again later"
 }
 
 struct TableViewConstants {
@@ -85,10 +87,12 @@ struct AlertConstants {
   static let AlertActionTitleMultipleMatches = "Multiple matches found."
   static let AlertActionMessageChooseLocation = "Choose the best match"
   static let AlertActionFormattedAddressLines = "FormattedAddressLines"
-  static let AlertActionOverwriteMessage = "You've already added a location to the map.  Do you want to overwrite it or add a new location?"
-  static let AlertActionOverwriteTitle = "Overwrite Location?"
-  static let AlertActionOverwriteConfirmationTitle = "Overwrite"
-  static let AlertActionNewLocationTitle = "Add New Location"
+  static let AlertActionMessageOverwrite = "You've already added a location to the map.  Do you want to overwrite it or add a new location?"
+  static let AlertActionOverwriteTitleConfirmation = "Overwrite"
+  static let AlertActionTitleNewLocation = "Add New Location"
+  static let AlertActionTitleUrlRequired = "URL Required"
+  static let AlertActionMessageUrlRequired = "Please enter a URL"
+  static let AlertActionTitleOK = "OK"
 }
 
 struct SegueIdentifierConstants {
@@ -97,9 +101,5 @@ struct SegueIdentifierConstants {
   static let TabBarIdentifier = "tabBarController"
 }
 
-struct NameConstants {
-  static let FirstName = "Matthew"
-  static let LastName = "Brown"
-}
 
 

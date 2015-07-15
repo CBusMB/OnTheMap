@@ -22,7 +22,7 @@
 		32C364F21B2A7266001EBDBF /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C364F11B2A7266001EBDBF /* LoginViewController.swift */; };
 		32D7CCBE1B3CFB9800371555 /* BrowseForURLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7CCBD1B3CFB9800371555 /* BrowseForURLViewController.swift */; };
 		32EE53771B2C4BFC0077286B /* UdacityUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32EE53761B2C4BFC0077286B /* UdacityUser.swift */; };
-		32EE53791B2C590B0077286B /* UdacityLoginSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32EE53781B2C590B0077286B /* UdacityLoginSession.swift */; };
+		32EE53791B2C590B0077286B /* UdacityAPISession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32EE53781B2C590B0077286B /* UdacityAPISession.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +55,7 @@
 		32C364F11B2A7266001EBDBF /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		32D7CCBD1B3CFB9800371555 /* BrowseForURLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowseForURLViewController.swift; sourceTree = "<group>"; };
 		32EE53761B2C4BFC0077286B /* UdacityUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityUser.swift; sourceTree = "<group>"; };
-		32EE53781B2C590B0077286B /* UdacityLoginSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityLoginSession.swift; sourceTree = "<group>"; };
+		32EE53781B2C590B0077286B /* UdacityAPISession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityAPISession.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +79,7 @@
 		324FD4181B3270B9002BCF75 /* HTTP Method Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				32EE53781B2C590B0077286B /* UdacityLoginSession.swift */,
+				32EE53781B2C590B0077286B /* UdacityAPISession.swift */,
 				3209C6D61B3104DD000E8218 /* ParseAPISession.swift */,
 			);
 			name = "HTTP Method Helpers";
@@ -267,7 +267,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3209C6D91B31060A000E8218 /* StudentLocation.swift in Sources */,
-				32EE53791B2C590B0077286B /* UdacityLoginSession.swift in Sources */,
+				32EE53791B2C590B0077286B /* UdacityAPISession.swift in Sources */,
 				324FD41A1B343692002BCF75 /* OnTheMapLocations.swift in Sources */,
 				32B3421A1B34F971002C00EA /* PostInformationViewController.swift in Sources */,
 				32C364F21B2A7266001EBDBF /* LoginViewController.swift in Sources */,

@@ -11,7 +11,7 @@ import Foundation
 struct UdacityUser {
   let userName: String
   let password: String
-  lazy var udacityParameters: [String : [String : String]] = [UdacityLoginSessionConstants.Udacity : [UdacityLoginSessionConstants.Username : self.userName, UdacityLoginSessionConstants.Password : self.password]]
+  lazy var udacityParameters: [String : [String : String]] = [UdacityAPIConstants.Udacity : [UdacityAPIConstants.Username : self.userName, UdacityAPIConstants.Password : self.password]]
   
   init(userName: String, password: String) {
     self.userName = userName
@@ -25,5 +25,12 @@ struct UdacityUser {
     // this is a student app, normally would not store password in NSUserDefaults
     defaults.setObject(password, forKey: "password")
   }
+  
+  struct FirstAndLastName {
+    var firstName: String
+    var lastName: String
+  }
 
+  
 }
+

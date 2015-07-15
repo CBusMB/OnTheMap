@@ -80,16 +80,15 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
     let studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
     if studentExistsInCollection {
-      let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionOverwriteMessage, preferredStyle: .Alert)
-      let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteConfirmationTitle, style: .Default, handler: { [unowned self] Void in
+      let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
+      let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
         self.userWantsToOverwriteLocation = true })
-      let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionNewLocationTitle, style: .Default, handler: { [unowned self] Void in
+      let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
         self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
     } else {
-      // setting userWantsToOverwriteLocation to false initiates segue
       userWantsToOverwriteLocation = false
     }
   }
@@ -99,7 +98,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
       mapLocations.removeAllLocations()
     }
     
-    ParseAPISession.getStudentLocationsSession { [unowned self] (success, completionMessage) -> Void in
+    ParseAPISession.getStudentLocationsSession { (success, completionMessage) in
       if !success {
         let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
         let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -117,7 +116,7 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   
   func logout() {
     let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
-    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { [unowned self] Void in
+    let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
       self.mapLocations.removeAllLocations() })
     logoutActionSheet.addAction(logoutConfirmed)

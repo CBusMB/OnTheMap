@@ -34,37 +34,43 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   
   // MARK: Login
-  @IBAction func logInWithFacebook() {
-    loginToUdacity()
-  }
   
   @IBAction func loginToUdacity() {
     dismissKeyboard()
     UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
     var udacityLoginCredentials = UdacityUser(userName: emailTextField.text.lowercaseString, password: passwordTextField.text)
-    UdacityLoginSession.udacityLoginTask(udacityLoginCredentials.udacityParameters) { [unowned self] (success, completionMessage) in
+    UdacityAPISession.udacityLoginSession(udacityLoginCredentials.udacityParameters) { (success, completionMessage, userId) in
       if !success {
         if let message = completionMessage {
           self.presentErrorActionSheet(message: message)
         }
       } else {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        dispatch_async(dispatch_get_main_queue(), { () in
           let storyboard = UIStoryboard(name: "Main", bundle: nil)
           let tabBarController = storyboard.instantiateViewControllerWithIdentifier(SegueIdentifierConstants.TabBarIdentifier) as! UITabBarController
-          self.presentViewController(tabBarController, animated: true, completion: { [unowned self] Void in self.resetUI() })
+          self.presentViewController(tabBarController, animated: true, completion: { Void in self.resetUI() })
         })
+        if let studentUserId = userId {
+          UdacityAPISession.studentNameForUdacityUserId(studentUserId) { (querySuccess, studentName) in
+            if !querySuccess {
+              // handle error
+            } else {
+              UdacityUser.FirstAndLastName(firstName: studentName.0, lastName: studentName.1)
+            }
+          }
+        }
       }
     }
   }
   
   func presentErrorActionSheet(message completionMessage: String) {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
-    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { [unowned self] Void in self.loginToUdacity() })
+    let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
     errorActionSheet.addAction(tryAgain)
     let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     errorActionSheet.addAction(cancel)
-    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+    dispatch_async(dispatch_get_main_queue(), { () in
       self.presentViewController(errorActionSheet, animated: true, completion: { Void in self.resetUI() })
     })
   }

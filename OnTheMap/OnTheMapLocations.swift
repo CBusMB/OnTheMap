@@ -29,18 +29,26 @@ class OnTheMapLocations
   }
   
   func addLocationToCollection(location: StudentLocation) {
-    // insert the student location into the array
+    // insert the student location at the end the array
     _locations.append(location)
+  }
+  
+  func addLocationToBeginningOfCollection(location: StudentLocation) {
+    // insert the student location at the beginning of the array
+    // when the user adds/updates a location, use this method so
+    // that the users name will be at the top of the table view
+    _locations.insert(location, atIndex: 0)
   }
   
   func removeAllLocations() {
     _locations.removeAll(keepCapacity: false)
   }
   
-  func uniqueIdForUserName(name: String) -> Bool {
+  /// :param: userName is used as the uniqueKey when posting to the web service
+  func uniqueIdForUserName(userName: String) -> Bool {
     var match = false
     for student in _locations {
-      if name == student.uniqueKey {
+      if userName == student.uniqueKey {
         match = true
         break
       }
