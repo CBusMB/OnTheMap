@@ -44,11 +44,10 @@ class OnTheMapLocations
     _locations.removeAll(keepCapacity: false)
   }
   
-  /// :param: userName is used as the uniqueKey when posting to the web service
-  func uniqueIdForUserName(userName: String) -> Bool {
+  func checkLocationsForMatchingUniqueId(uniqueId: String) -> Bool {
     var match = false
     for student in _locations {
-      if userName == student.uniqueKey {
+      if uniqueId == student.uniqueKey {
         match = true
         break
       }
@@ -59,6 +58,8 @@ class OnTheMapLocations
   func removeStudentLocationForObjectID(objectID: String) {
     for var i = 0; i < _locations.count; i++ {
       if objectID == _locations[i].objectID {
+        println(objectID)
+        println(_locations[i].objectID)
         _locations.removeAtIndex(i)
       }
     }

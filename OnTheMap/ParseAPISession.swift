@@ -106,8 +106,8 @@ class ParseAPISession
   
   /// :param: userName used to query the web service if a given unique ID (userName) exists
   /// :param: completionHandler returns a Bool to indicate if the query was successful and an array of objectIDs for the given userName (unique ID)
-  class func queryStudentLocationSession(byUserName userName: String, completionHandler: (success: Bool, objectIDs: [String]?) -> Void) {
-    let urlString = escapeURL(forUserName: userName)
+  class func queryStudentLocationSession(byUserId userId: String, completionHandler: (success: Bool, objectIDs: [String]?) -> Void) {
+    let urlString = escapeURL(forUserId: userId)
     let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
     request.addValue(ParseAPIConstants.ParseApplicationID, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForApplicationID)
     request.addValue(ParseAPIConstants.RestAPIKey, forHTTPHeaderField: ParseAPIConstants.HeaderFieldForREST)
@@ -124,7 +124,7 @@ class ParseAPISession
             if let students = jsonData[ParseAPIConstants.Results] as? [NSDictionary] {
             var studentObjectIds = [String]()
             for student in students {
-              var studentObjectId = student[ParseAPIConstants.ObjectIDKey] as! String
+              let studentObjectId = student[ParseAPIConstants.ObjectIDKey] as! String
               studentObjectIds.append(studentObjectId)
             }
             completionHandler(success: true, objectIDs: studentObjectIds)
@@ -140,8 +140,8 @@ class ParseAPISession
     task.resume()
   }
   
-  private class func escapeURL(forUserName userName: String) -> String {
-    let urlString = ParseAPIConstants.ParseURL + "?where={\"\(ParseAPIConstants.UniqueKeyKey)\":\"\(userName)\"}"
+  private class func escapeURL(forUserId userId: String) -> String {
+    let urlString = ParseAPIConstants.ParseURL + "?where={\"\(ParseAPIConstants.UniqueKeyKey)\":\"\(userId)\"}"
     let escapedURLString = urlString.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
     return escapedURLString!
   }

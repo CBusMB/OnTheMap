@@ -17,7 +17,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     didSet {
       // if this var is set to TRUE we do a background fetch of the objectIDs for the userName
       if userWantsToOverwriteLocation == true {
-        ParseAPISession.queryStudentLocationSession(byUserName: NSUserDefaults.standardUserDefaults().stringForKey("userName")!) { (success, objectIDs) in
+        ParseAPISession.queryStudentLocationSession(byUserId: NSUserDefaults.standardUserDefaults().stringForKey("userId")!) { (success, objectIDs) in
           if success {
             self.studentObjectIDs = objectIDs
           }
@@ -95,7 +95,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     static let LocationQuestionMiddle = "studying"
     static let LocationQuestionBottom = "today?"
   }
-
+  
   @IBOutlet weak var searchButton: UIButton! {
     didSet {
       setAttributes(forButton: searchButton, hiddenOnLoad: false)
@@ -168,7 +168,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     errorActionSheet.addAction(cancel)
     presentViewController(errorActionSheet, animated: true, completion:nil)
   }
-
+  
   private func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
     // display (up to) the top 3 location mataches to the user and let them choose the best one
     let locationChoiceActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleMultipleMatches, message: AlertConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
@@ -214,6 +214,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   // MARK: Post / Put calls to web service
   @IBAction func submitLocationToServer() {
     if let overwrite = userWantsToOverwriteLocation {
+      println("\(overwrite)")
       // create the parameters needed to post / put to the server
       let studentInformationWithoutObjectIdToPost = createStudentInformationDictionaryWithoutObjectId()
       if overwrite {
@@ -231,7 +232,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       let objectId = studentObjectIDs?.last
       // make a new NSDictionary with the objectID included
       let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: objectId!)
-    
+      
       // add the "/" before the objectId and then add it to the Parse URL
       let objectIdForURL = "/" + objectId!
       let putSessionURL = ParseAPIConstants.ParseURL + objectIdForURL
@@ -258,8 +259,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     } else {
       ParseAPISession.postStudentLocationSession(studentInformation) { (success, completionMessage) in
         if success {
-          let userName = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
-          ParseAPISession.queryStudentLocationSession(byUserName: userName) { (querySuccess, objectIDs) in
+          let userId = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
+          ParseAPISession.queryStudentLocationSession(byUserId: userId) { (querySuccess, objectIDs) in
             if querySuccess {
               let justPostedObjectID = objectIDs!.last
               // make a new NSDictionary with the just posted objectID included
@@ -285,12 +286,13 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   private func createStudentInformationDictionaryWithoutObjectId() -> NSMutableDictionary {
-    let udacityUserName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
+    // get persisted values from NSUserDefaults
+    let defaults = NSUserDefaults.standardUserDefaults()
     
     let studentInformation = NSMutableDictionary(dictionary: [
-      ParseAPIConstants.UniqueKeyKey : udacityUserName!,
-      ParseAPIConstants.FirstNameKey : UdacityUser.FirstAndLastName.firstName,
-      ParseAPIConstants.LastNameKey : UdacityUser.FirstAndLastName.lastName,
+      ParseAPIConstants.UniqueKeyKey : defaults.stringForKey("userId")!,
+      ParseAPIConstants.FirstNameKey : defaults.stringForKey("firstName")!,
+      ParseAPIConstants.LastNameKey : defaults.stringForKey("lastName")!,
       ParseAPIConstants.MapStringKey : locationTextView.text,
       ParseAPIConstants.MediaURLKey : urlTextView.text,
       ParseAPIConstants.LatitudeKey : locationToSubmit!.coordinate.latitude,
@@ -330,20 +332,20 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       self.locationQuestionMiddleLabel.alpha = -1.0
       self.locationQuestionBottomLabel.alpha = -1.0 })
       { if $0 {
-          self.bottomView.alpha = 1.0
-          self.bottomView.backgroundColor = UIColor.clearColor()
-          self.bottomView.bringSubviewToFront(self.submitButton)
-          self.locationTextView.hidden = true
-          self.submitButton.hidden = false
-          self.searchButton.hidden = true
-          self.locationQuestionTopLabel.hidden = true
-          self.locationQuestionMiddleLabel.hidden = true
-          self.locationQuestionBottomLabel.hidden = true
-          self.urlTextView.hidden = false
-          self.browseWebButton.hidden = false
-          self.mapView.hidden = false
+        self.bottomView.alpha = 1.0
+        self.bottomView.backgroundColor = UIColor.clearColor()
+        self.bottomView.bringSubviewToFront(self.submitButton)
+        self.locationTextView.hidden = true
+        self.submitButton.hidden = false
+        self.searchButton.hidden = true
+        self.locationQuestionTopLabel.hidden = true
+        self.locationQuestionMiddleLabel.hidden = true
+        self.locationQuestionBottomLabel.hidden = true
+        self.urlTextView.hidden = false
+        self.browseWebButton.hidden = false
+        self.mapView.hidden = false
         }
-      }
+    }
   }
   
   private func resetUI() {
@@ -374,7 +376,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
-  // MARK: TextView Delegate  
+  // MARK: TextView Delegate
   func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
     if text == "\n" {
       textView.resignFirstResponder()

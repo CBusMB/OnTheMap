@@ -1,6 +1,6 @@
 //
 //  LoginViewController.swift
-//  
+//
 //
 //  Created by Matthew Brown on 6/11/15.
 //
@@ -51,21 +51,33 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
           let tabBarController = storyboard.instantiateViewControllerWithIdentifier(SegueIdentifierConstants.TabBarIdentifier) as! UITabBarController
           self.presentViewController(tabBarController, animated: true, completion: { Void in self.resetUI() })
         })
-        if let studentUserId = userId {
-          UdacityAPISession.studentNameForUdacityUserId(studentUserId) { (querySuccess, studentName) in
-            if !querySuccess {
-              // handle error
-            } else {
-              UdacityUser.FirstAndLastName(firstName: studentName.0, lastName: studentName.1)
-            }
+        if let persistedUserId = NSUserDefaults.standardUserDefaults().stringForKey("userId") { // is there a persisted userId?
+          if persistedUserId != userId {
+            // if the persisted userId is not equal to the newly downloaded userId, update the userId and the user first/last name
+            self.updateUserIdFirstLastName(userId!)
           }
+        } else {
+          // if there is no persisted userId, persist the newly downloaded userId and update the user first/last name
+          self.updateUserIdFirstLastName(userId!)
         }
       }
     }
   }
   
+  func updateUserIdFirstLastName(userId: String) {
+    UdacityUserId(userId: userId)
+    // if the persisted userId is not equal to the newly downloaded userId, go back to the server to update the user's first and last name
+    UdacityAPISession.studentNameForUdacityUserId(userId) { (querySuccess, studentName) in
+      if !querySuccess {
+        // handle error
+      } else {
+        FirstAndLastName(firstName: studentName.0, lastName: studentName.1)
+      }
+    }
+  }
+  
   func presentErrorActionSheet(message completionMessage: String) {
-    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .ActionSheet)
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: completionMessage, preferredStyle: .Alert)
     let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.loginToUdacity() })
     errorActionSheet.addAction(tryAgain)
     let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
@@ -87,12 +99,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     ]
     static let SignUpLinkString = "Don't have an account? Sign up"
   }
-
+  
   // MARK: Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
     signUpTextView.backgroundColor = view.backgroundColor
     let defaults = NSUserDefaults.standardUserDefaults()
+    // if we have a persisted userName in NSUserDefaults (user did not logout), fill it in and login automatically
     if let userName = defaults.stringForKey("userName") {
       let password = defaults.stringForKey("password")
       emailTextField.text = userName
@@ -120,7 +133,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
     return true
   }
-
+  
   func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
     return true
   }
@@ -168,6 +181,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   func unsubscribeFromKeyboardWillShowNotification() {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
   }
-
-
+  
+  
 }

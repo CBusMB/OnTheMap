@@ -11,7 +11,7 @@ import MapKit
 
 struct StudentLocation {
   let objectID: String?
-  let uniqueKey: String
+  let uniqueKey: String // UdacityUserId.userId
   let firstName: String
   let lastName: String
   let mapString: String

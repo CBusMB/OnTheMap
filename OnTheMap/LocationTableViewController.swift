@@ -77,8 +77,9 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   func confirmUserWantsToOverwriteLocation() {
-    let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    let studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
+    // get the persisted uniqueId
+    let uniqueId = NSUserDefaults.standardUserDefaults().stringForKey("userId")
+    let studentExistsInCollection = mapLocations.checkLocationsForMatchingUniqueId(uniqueId!)
     if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
@@ -118,12 +119,17 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
     let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
-      self.mapLocations.removeAllLocations() })
+      self.mapLocations.removeAllLocations()
+      self.deleteUserDefaults()	})
     logoutActionSheet.addAction(logoutConfirmed)
     let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
     presentViewController(logoutActionSheet, animated: true, completion: nil)
   }
   
+  func deleteUserDefaults() {
+    let appDomain = NSBundle.mainBundle().bundleIdentifier
+    NSUserDefaults.standardUserDefaults().removePersistentDomainForName(appDomain!)
+  }
   
 }

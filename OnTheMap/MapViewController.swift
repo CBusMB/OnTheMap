@@ -50,7 +50,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
       mapView.removeAnnotations(annotations)
       annotations.removeAll(keepCapacity: false)
       addLocationPinsToMap()
-     }
+    }
   }
   
   // MARK: - Network calls
@@ -77,7 +77,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   private func addLocationPinsToMap() {
-    mapView.removeAnnotations(annotations)
+    annotations.removeAll(keepCapacity: false)
     for location in mapLocations.locations {
       let annotation = MKPointAnnotation()
       annotation.coordinate = location.coordinate
@@ -103,14 +103,15 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func confirmUserWantsToOverwriteLocation() {
-    let userName = NSUserDefaults.standardUserDefaults().stringForKey("userName")
-    let studentExistsInCollection = mapLocations.uniqueIdForUserName(userName!)
+    // get the persisted uniqueId
+    let uniqueId = NSUserDefaults.standardUserDefaults().stringForKey("userId")
+    let studentExistsInCollection = mapLocations.checkLocationsForMatchingUniqueId(uniqueId!)
     if studentExistsInCollection {
       let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
       let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
-          self.userWantsToOverwriteLocation = true })
+        self.userWantsToOverwriteLocation = true })
       let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
-          self.userWantsToOverwriteLocation = false })
+        self.userWantsToOverwriteLocation = false })
       confirmationAlert.addAction(overwrite)
       confirmationAlert.addAction(addNewLocation)
       presentViewController(confirmationAlert, animated: true, completion: nil)
@@ -123,12 +124,18 @@ class MapViewController: UIViewController, MKMapViewDelegate
     let logoutActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageLogout, preferredStyle: .Alert)
     let logoutConfirmed = UIAlertAction(title: AlertConstants.AlertActionTitleLogout, style: .Destructive, handler: { Void in
       self.dismissViewControllerAnimated(true, completion: nil)
-    self.mapLocations.removeAllLocations()
-    self.annotations.removeAll(keepCapacity: false) })
+      self.mapLocations.removeAllLocations()
+      self.annotations.removeAll(keepCapacity: false)
+      self.deleteUserDefaults()	})
     logoutActionSheet.addAction(logoutConfirmed)
     let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
     logoutActionSheet.addAction(cancel)
     presentViewController(logoutActionSheet, animated: true, completion: nil)
+  }
+  
+  func deleteUserDefaults() {
+    let appDomain = NSBundle.mainBundle().bundleIdentifier
+    NSUserDefaults.standardUserDefaults().removePersistentDomainForName(appDomain!)
   }
   
   // MARK: - MKMapViewDelegate
@@ -167,5 +174,5 @@ class MapViewController: UIViewController, MKMapViewDelegate
       }
     }
   }
-
+  
 }

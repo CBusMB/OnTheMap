@@ -11,7 +11,7 @@ import Foundation
 class UdacityAPISession
 {
   /// :param: udacityParameters A Dictionary containing the parameters required to login to Udacity
-  /// :param: completionHandler Returns a Bool to indicate the succes of the login and a String message providing information about the success / failure
+  /// :param: completionHandler Returns a Bool to indicate the success of the login and a String message providing information about the success / failure
   class func udacityLoginSession(udacityParameters: [String : [String : String]], completionHandler: (success: Bool, message: String?, userId: String?) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: UdacityAPIConstants.UdacitySessionURL)!)
     request.HTTPMethod = UdacityAPIConstants.HttpMethod
