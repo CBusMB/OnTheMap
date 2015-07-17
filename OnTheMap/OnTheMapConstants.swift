@@ -51,30 +51,20 @@ struct ErrorMessages {
   static let ErrorCodeMessage = "Account not found or invalid credentials"
   static let NetworkErrorMessage = "Network Error, please try again later"
   static let JsonErrorMessage = "Error, could not read response from server"
-  static let GenericErrorMessage = "Error, please try again later"
+  static let GenericErrorMessage = "Error"
   static let GeocodingErrorMessage = "Could not find location, please try again"
   static let LocationNotUpdated = "Location Not Updated, please try again later"
   static let LocationNotAdded = "Location Not Added, please try again later"
 }
 
-struct TableViewConstants {
-  static let CellIdentifier = "studentInformationCell"
-}
-
-struct NavigationItemConstants {
+struct NavigationBarConstants {
   static let Logout = "Logout"
-}
-
-struct ImageConstants {
   static let PinImage = "pin"
 }
 
-struct MapViewConstants {
+struct ReuseIdentifierConstants {
   static let ReuseIdentifier = "pin"
-}
-
-struct DefaultStudentInformationConstants {
-  static let UdacityHomePage = "https://www.udacity.com/"
+  static let CellIdentifier = "studentInformationCell"
 }
 
 struct AlertConstants {
@@ -100,6 +90,3 @@ struct SegueIdentifierConstants {
   static let TableToPostSegue = "tableToPost"
   static let TabBarIdentifier = "tabBarController"
 }
-
-
-

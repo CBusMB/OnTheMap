@@ -11,7 +11,11 @@ import MapKit
 
 class ParseAPISession
 {
-  /// :param: completionHandler returns a Bool to indicate success of the get session and a String message regarding the success/failure
+  /**
+  GETs student locations from the server
+  
+  :param: completionHandler   returns a Bool to indicate success and a completionMessage description
+  */
   class func getStudentLocationsSession(completionHandler: (success: Bool, completionMessage: String?) -> Void) {
     let escapedURLString = ParseAPIConstants.ParseURLWithLimit.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
     let request = NSMutableURLRequest(URL: NSURL(string: escapedURLString!)!)
@@ -38,6 +42,11 @@ class ParseAPISession
     task.resume()
   }
   
+  /**
+  Adds the student locations to the OnTheMapLocations.sharedCollection
+  
+  :param: studentNamesAndLocations   The dictionary parsed from the web service's JSON response
+  */
   private class func createOnTheMapLocations(fromDataSource studentNamesAndLocations: [NSDictionary]) {
     let locations = OnTheMapLocations.sharedCollection
     for nameAndLocation in studentNamesAndLocations {
@@ -46,8 +55,12 @@ class ParseAPISession
     }
   }
   
-  /// :param: studentInformation is a NSDictionary that contains the parameters to post to the web service
-  /// :param: completionHandler returns a Bool to indicate success of the post session and a String tuple with messages regarding the success/failure
+  /**
+  POSTs a student location to the web service
+  
+  :param: studentInformation   A dictionary of required paramenters for the POST session
+  :param: completionHandler    Returns a Bool to indicate success of the POST and a string tuple for messages regarding the success or failure of the POST
+  */
   class func postStudentLocationSession(studentInformation: NSDictionary, completionHandler: (success: Bool, message: (String?, String?)) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: ParseAPIConstants.ParseURL)!)
     request.HTTPMethod = ParseAPIConstants.HTTPMethodPOST
@@ -73,9 +86,13 @@ class ParseAPISession
     task.resume()
   }
   
-  /// :param: studentInformation a NSDictionary that contains the parameters to post to the web service
-  /// :param: urlWithObjectId the web service url plus the object ID for the location the user wants to update
-  /// :param: completionHandler returns a Bool to indicate success of the put session and a String tuple with messages regarding the success/failure
+  /**
+  PUTs (updates) a student location on the web service
+  
+  :param: studentInformation   A dictionary of required paramenters for the POST session
+  :param: urlWithObjectId      The URL for the web service that includes the objectId of the object to be updated
+  :param: completionHandler    Returns a Bool to indicate success of the POST and a string tuple for messages regarding the success or failure of the POST
+  */
   class func putStudentLocationSession(studentInformation: NSDictionary, urlWithObjectId: String, completionHandler: (success: Bool, message: (String?, String?)) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: urlWithObjectId)!)
     request.HTTPMethod = ParseAPIConstants.HTTPMethodPUT
@@ -104,8 +121,11 @@ class ParseAPISession
     task.resume()
   }
   
-  /// :param: userName used to query the web service if a given unique ID (userName) exists
-  /// :param: completionHandler returns a Bool to indicate if the query was successful and an array of objectIDs for the given userName (unique ID)
+  /**
+  GETs an array of student location objects for a given uniqueId
+  :param: userId   The userId to query
+  :param: completionHandler    Returns a Bool to indicate success of the POST and an array of objectIds associated with the userId
+  */
   class func queryStudentLocationSession(byUserId userId: String, completionHandler: (success: Bool, objectIDs: [String]?) -> Void) {
     let urlString = escapeURL(forUserId: userId)
     let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
@@ -122,12 +142,12 @@ class ParseAPISession
             completionHandler(success: false, objectIDs: nil)
           } else {
             if let students = jsonData[ParseAPIConstants.Results] as? [NSDictionary] {
-            var studentObjectIds = [String]()
-            for student in students {
-              let studentObjectId = student[ParseAPIConstants.ObjectIDKey] as! String
-              studentObjectIds.append(studentObjectId)
-            }
-            completionHandler(success: true, objectIDs: studentObjectIds)
+              var studentObjectIds = [String]()
+              for student in students {
+                let studentObjectId = student[ParseAPIConstants.ObjectIDKey] as! String
+                studentObjectIds.append(studentObjectId)
+              }
+              completionHandler(success: true, objectIDs: studentObjectIds)
             } else {
               completionHandler(success: false, objectIDs: nil)
             }

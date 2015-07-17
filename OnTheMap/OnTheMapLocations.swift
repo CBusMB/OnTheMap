@@ -10,8 +10,7 @@ import Foundation
 
 class OnTheMapLocations
 {
-  /* Singleton. Use let xxx = OnTheMapLocations.sharedCollection to access OnTheMapLocations
-  public properties and methods */
+  /// Singleton.  Use OnTheMapLocations.sharedCollection to access public properties and methods
   class var sharedCollection: OnTheMapLocations {
     struct LocationsSingleton {
       static let instance: OnTheMapLocations = OnTheMapLocations()
@@ -28,11 +27,20 @@ class OnTheMapLocations
     }
   }
   
+  /**
+  Adds a StudentLocation struct to the locations array
+  
+  :param: location    The StudentLocation Array to add
+  */
   func addLocationToCollection(location: StudentLocation) {
-    // insert the student location at the end the array
     _locations.append(location)
   }
   
+  /**
+  Adds a StudentLocation struct to the locations array at index [0]
+  
+  :param: location    The StudentLocation Array to add
+  */
   func addLocationToBeginningOfCollection(location: StudentLocation) {
     // insert the student location at the beginning of the array
     // when the user adds/updates a location, use this method so
@@ -44,6 +52,12 @@ class OnTheMapLocations
     _locations.removeAll(keepCapacity: false)
   }
   
+  /**
+  Checks the locations array for a matching uniqueKey
+  
+  :param: uniqueId    the uniqueId of a StudentLocation
+  :returns: Bool indicating if the matching uniqueKey was found
+  */
   func checkLocationsForMatchingUniqueId(uniqueId: String) -> Bool {
     var match = false
     for student in _locations {
@@ -55,11 +69,14 @@ class OnTheMapLocations
     return match
   }
   
+  /**
+  Removes a StudentLocation that contains a given objectID
+  
+  :param: objectID    the objectID of a StudentLocation
+  */
   func removeStudentLocationForObjectID(objectID: String) {
     for var i = 0; i < _locations.count; i++ {
       if objectID == _locations[i].objectID {
-        println(objectID)
-        println(_locations[i].objectID)
         _locations.removeAtIndex(i)
       }
     }

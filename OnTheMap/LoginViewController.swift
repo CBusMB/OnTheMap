@@ -33,14 +33,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
   
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   
-  // MARK: Login
+  // MARK: - Login
   
   @IBAction func loginToUdacity() {
     dismissKeyboard()
     UIView.animateWithDuration(1.2, animations: { self.view.alpha = 0.6 })
     activityIndicator.startAnimating()
-    var udacityLoginCredentials = UdacityUser(userName: emailTextField.text.lowercaseString, password: passwordTextField.text)
-    UdacityAPISession.udacityLoginSession(udacityLoginCredentials.udacityParameters) { (success, completionMessage, userId) in
+    // create the dictionary of parameters needed to login and pass it to the login method
+    var udacityLoginParameters = prepareUdacityLoginParameters()
+    UdacityAPISession.udacityLoginSession(udacityLoginParameters) { (success, completionMessage, userId) in
       if !success {
         if let message = completionMessage {
           self.presentErrorActionSheet(message: message)
@@ -64,14 +65,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     }
   }
   
+  ///  :returns: A Dictionary containing the parameters required for Udacity login
+  func prepareUdacityLoginParameters() -> [String : [String : String]] {
+    UdacityUser.saveToUserDefaults(emailTextField.text.lowercaseString, key: "userName")
+    UdacityUser.saveToUserDefaults(passwordTextField.text, key: "password")
+    return UdacityUser.createUdacityParametersDictionary(emailTextField.text.lowercaseString, password: passwordTextField.text)
+  }
+  
+  /// Saves the userId to NSUserDefaults.  GETs the student first and last name from Udacity and saves both to NSUserDefaults
   func updateUserIdFirstLastName(userId: String) {
-    UdacityUserId(userId: userId)
-    // if the persisted userId is not equal to the newly downloaded userId, go back to the server to update the user's first and last name
-    UdacityAPISession.studentNameForUdacityUserId(userId) { (querySuccess, studentName) in
-      if !querySuccess {
-        // handle error
+    UdacityUser.saveToUserDefaults(userId, key: "userId")
+    UdacityAPISession.studentNameForUdacityUserId(userId) { (querySuccess, firstName, lastName) in
+      if !querySuccess { // pass empty strings as the values for first and last name
+        UdacityUser.saveToUserDefaults("", key: "firstName")
+        UdacityUser.saveToUserDefaults("", key: "lastName")
       } else {
-        FirstAndLastName(firstName: studentName.0, lastName: studentName.1)
+        UdacityUser.saveToUserDefaults(firstName!, key: "firstName")
+        UdacityUser.saveToUserDefaults(lastName!, key: "lastName")
       }
     }
   }
@@ -100,7 +110,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     static let SignUpLinkString = "Don't have an account? Sign up"
   }
   
-  // MARK: Lifecycle
+  // MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
     signUpTextView.backgroundColor = view.backgroundColor
@@ -129,7 +139,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, UITextViewDele
     view.alpha = 1.0
   }
   
-  // MARK: textView, textField, keyboard methods
+  // MARK: - textView, textField, keyboard methods
   func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
     return true
   }

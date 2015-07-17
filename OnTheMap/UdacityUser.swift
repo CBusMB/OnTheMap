@@ -5,45 +5,36 @@
 //  Created by Matthew Brown on 6/13/15.
 //  Copyright (c) 2015 Crest Technologies. All rights reserved.
 //
-// struct is used to create parameters needed for Udacity login
-// values are persisted in NSUserDefaults to minimize network calls to retrieve this information
+
 import Foundation
 
-struct UdacityUser {
-  let userName: String
-  let password: String
-  lazy var udacityParameters: [String : [String : String]] = [UdacityAPIConstants.Udacity : [UdacityAPIConstants.Username : self.userName, UdacityAPIConstants.Password : self.password]]
+/// Implements helper methods for 1) creating parameters needed for Udacity login 2) Persisting Udacity information to NSUserDefaults
+class UdacityUser {
   
-  init(userName: String, password: String) {
-    self.userName = userName
-    self.password = password
-    saveToUserDefaults(userName, key: "userName")
-    saveToUserDefaults(password, key: "password")
-  }
+  /**
+  Saves Strings to NSUserDefaults
   
-  func saveToUserDefaults(object: String, key: String) {
+  :param: object    value of the key value pair to persist
+  :param: key       key of the key value pair to persist
+  */
+  class func saveToUserDefaults(object: String, key: String) {
     let defaults = NSUserDefaults.standardUserDefaults()
     defaults.setObject(object, forKey: key)
   }
-}
-
-struct FirstAndLastName {
-  var firstName: String
-  var lastName: String
-  init(firstName: String, lastName: String) {
-    self.firstName = firstName
-    self.lastName = lastName
-    NSUserDefaults.standardUserDefaults().setObject(firstName, forKey: "firstName")
-    NSUserDefaults.standardUserDefaults().setObject(lastName, forKey: "lastName")
+  
+  /**
+  Creates Dictionary of parameters needed to complete Udacity login
+  
+  :param: userName    Udacity user name
+  :param: password    Udacity password
+  :returns: Dictionary of parameters needed for Udacity login
+  */
+  class func createUdacityParametersDictionary(userName: String, password: String) -> [String : [String : String]] {
+    let udacityLoginParameters = [UdacityAPIConstants.Udacity : [UdacityAPIConstants.Username : userName, UdacityAPIConstants.Password : password]]
+    return udacityLoginParameters
   }
 }
 
-struct UdacityUserId {
-  var userId: String
-  init(userId: String) {
-    self.userId = userId
-    NSUserDefaults.standardUserDefaults().setObject(userId, forKey: "userId")
-  }
-}
+
 
 

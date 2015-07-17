@@ -14,10 +14,9 @@ class MapViewController: UIViewController, MKMapViewDelegate
   var annotations = [MKPointAnnotation]()
   var mapLocations = OnTheMapLocations.sharedCollection
   
-  private var studentObjectIDs: [String]?
   private var userWantsToOverwriteLocation: Bool? {
     didSet {
-      // as soon as the user confirms to overwrite / make new location, we "drop the pin" and segue to the next vc
+      // as soon as the user confirms to overwrite or make new location, we "drop the pin" and segue to the next vc
       dropPin()
     }
   }
@@ -33,8 +32,8 @@ class MapViewController: UIViewController, MKMapViewDelegate
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationItemConstants.Logout, style: .Plain, target: self, action: "logout")
-    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.PinImage), style: .Plain, target: self, action: "confirmUserWantsToOverwriteLocation")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationBarConstants.Logout, style: .Plain, target: self, action: "logout")
+    let pin = UIBarButtonItem(image: UIImage(named: NavigationBarConstants.PinImage), style: .Plain, target: self, action: "confirmUserWantsToOverwriteLocation")
     let reload = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "getStudentLocations")
     var rightBarButtonItems = [reload, pin]
     navigationItem.rightBarButtonItems = rightBarButtonItems
@@ -56,24 +55,31 @@ class MapViewController: UIViewController, MKMapViewDelegate
   // MARK: - Network calls
   
   func getStudentLocations() {
-    if !annotations.isEmpty {
+    if !mapLocations.locations.isEmpty {
+      // clear the model array, annotations array, and mapView
       mapLocations.removeAllLocations()
+      mapView.removeAnnotations(annotations)
+      annotations.removeAll(keepCapacity: false)
     }
     
     ParseAPISession.getStudentLocationsSession { (success, completionMessage) in
       if !success {
-        let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
-        let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
-        errorAlert.addAction(cancel)
-        dispatch_async(dispatch_get_main_queue(), { () in
-          self.presentViewController(errorAlert, animated: true, completion: nil)
-        })
+        self.presentErrorAlert(completionMessage!)
       } else {
         dispatch_async(dispatch_get_main_queue(), { () in
           self.addLocationPinsToMap()
         })
       }
     }
+  }
+  
+  func presentErrorAlert(message: String) {
+    let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: message, preferredStyle: .Alert)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    errorAlert.addAction(cancel)
+    dispatch_async(dispatch_get_main_queue(), { () in
+      self.presentViewController(errorAlert, animated: true, completion: nil)
+    })
   }
   
   private func addLocationPinsToMap() {
@@ -98,26 +104,33 @@ class MapViewController: UIViewController, MKMapViewDelegate
     if segue.identifier == SegueIdentifierConstants.MapToPostSegue {
       let postInformationViewController = segue.destinationViewController as! PostInformationViewController
       postInformationViewController.userWantsToOverwriteLocation = userWantsToOverwriteLocation
-      postInformationViewController.studentObjectIDs = studentObjectIDs
     }
   }
   
+  /**
+  If the locations Array contains a location posted by the current user, confrim if the user wants to overwrite
+  that location or POST a new location.  Setting the value of userWantsToOverwriteLocation initiates segue to next vc.
+  */
   func confirmUserWantsToOverwriteLocation() {
     // get the persisted uniqueId
     let uniqueId = NSUserDefaults.standardUserDefaults().stringForKey("userId")
     let studentExistsInCollection = mapLocations.checkLocationsForMatchingUniqueId(uniqueId!)
     if studentExistsInCollection {
-      let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
-      let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
-        self.userWantsToOverwriteLocation = true })
-      let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
-        self.userWantsToOverwriteLocation = false })
-      confirmationAlert.addAction(overwrite)
-      confirmationAlert.addAction(addNewLocation)
-      presentViewController(confirmationAlert, animated: true, completion: nil)
+      presentOverwriteConfirmation()
     } else {
       userWantsToOverwriteLocation = false
     }
+  }
+  
+  func presentOverwriteConfirmation() {
+    let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
+    let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
+      self.userWantsToOverwriteLocation = true })
+    let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
+      self.userWantsToOverwriteLocation = false })
+    confirmationAlert.addAction(overwrite)
+    confirmationAlert.addAction(addNewLocation)
+    presentViewController(confirmationAlert, animated: true, completion: nil)
   }
   
   func logout() {
@@ -141,10 +154,10 @@ class MapViewController: UIViewController, MKMapViewDelegate
   // MARK: - MKMapViewDelegate
   
   func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
-    var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(MapViewConstants.ReuseIdentifier) as? MKPinAnnotationView
+    var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(ReuseIdentifierConstants.ReuseIdentifier) as? MKPinAnnotationView
     
     if pinAnnotationView == nil {
-      pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: MapViewConstants.ReuseIdentifier)
+      pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: ReuseIdentifierConstants.ReuseIdentifier)
       pinAnnotationView!.canShowCallout = true
       pinAnnotationView!.pinColor = .Red
       pinAnnotationView!.rightCalloutAccessoryView = UIButton.buttonWithType(.DetailDisclosure) as! UIButton
@@ -158,6 +171,7 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
+    // if the user did not enter a full URL, do a search with the mediaURL as the search term
     let https = "https://"
     let http = "http://"
     let googleSearch = "https://google.com/search?q="

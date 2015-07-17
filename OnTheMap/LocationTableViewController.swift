@@ -23,8 +23,8 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     super.viewDidLoad()
     tableView.delegate = self
     tableView.dataSource = self
-    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationItemConstants.Logout, style: .Plain, target: self, action: "logout")
-    let pin = UIBarButtonItem(image: UIImage(named: ImageConstants.PinImage), style: .Plain, target: self, action: "confirmUserWantsToOverwriteLocation")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(title: NavigationBarConstants.Logout, style: .Plain, target: self, action: "logout")
+    let pin = UIBarButtonItem(image: UIImage(named: NavigationBarConstants.PinImage), style: .Plain, target: self, action: "confirmUserWantsToOverwriteLocation")
     let reload = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "getStudentLocations")
     var rightBarButtonItems = [reload, pin]
     navigationItem.rightBarButtonItems = rightBarButtonItems
@@ -42,13 +42,14 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
   }
   
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier(TableViewConstants.CellIdentifier, forIndexPath: indexPath) as! UITableViewCell
-    cell.imageView?.image = UIImage(named: ImageConstants.PinImage)
+    let cell = tableView.dequeueReusableCellWithIdentifier(ReuseIdentifierConstants.CellIdentifier, forIndexPath: indexPath) as! UITableViewCell
+    cell.imageView?.image = UIImage(named: NavigationBarConstants.PinImage)
     cell.textLabel?.text = "\(mapLocations.locations[indexPath.row].firstName) \(mapLocations.locations[indexPath.row].lastName)"
     return cell
   }
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    // if the user did not enter a full URL, do a search with the mediaURL as the search term
     let https = "https://"
     let http = "http://"
     let googleSearch = "https://google.com/search?q="
@@ -76,43 +77,57 @@ class LocationTableViewController: UITableViewController, UITableViewDelegate, U
     }
   }
   
+  /**
+  If the locations Array contains a location posted by the current user, confrim if the user wants to overwrite
+  that location or POST a new location.  Setting the value of userWantsToOverwriteLocation initiates segue to next vc.
+  */
   func confirmUserWantsToOverwriteLocation() {
     // get the persisted uniqueId
     let uniqueId = NSUserDefaults.standardUserDefaults().stringForKey("userId")
     let studentExistsInCollection = mapLocations.checkLocationsForMatchingUniqueId(uniqueId!)
     if studentExistsInCollection {
-      let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
-      let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
-        self.userWantsToOverwriteLocation = true })
-      let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
-        self.userWantsToOverwriteLocation = false })
-      confirmationAlert.addAction(overwrite)
-      confirmationAlert.addAction(addNewLocation)
-      presentViewController(confirmationAlert, animated: true, completion: nil)
+      presentOverwriteConfirmation()
     } else {
       userWantsToOverwriteLocation = false
     }
   }
   
+  func presentOverwriteConfirmation() {
+    let confirmationAlert = UIAlertController(title: AlertConstants.AlertActionTitleConfirmation, message: AlertConstants.AlertActionMessageOverwrite, preferredStyle: .Alert)
+    let overwrite = UIAlertAction(title: AlertConstants.AlertActionOverwriteTitleConfirmation, style: .Default, handler: { Void in
+      self.userWantsToOverwriteLocation = true })
+    let addNewLocation = UIAlertAction(title: AlertConstants.AlertActionTitleNewLocation, style: .Default, handler: { Void in
+      self.userWantsToOverwriteLocation = false })
+    confirmationAlert.addAction(overwrite)
+    confirmationAlert.addAction(addNewLocation)
+    presentViewController(confirmationAlert, animated: true, completion: nil)
+  }
+
+  
   func getStudentLocations() {
     if !mapLocations.locations.isEmpty {
+      // clear the locations array
       mapLocations.removeAllLocations()
     }
     
     ParseAPISession.getStudentLocationsSession { (success, completionMessage) in
       if !success {
-        let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: completionMessage, preferredStyle: .Alert)
-        let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
-        errorAlert.addAction(cancel)
-        dispatch_async(dispatch_get_main_queue(), { () in
-          self.presentViewController(errorAlert, animated: true, completion: nil)
-        })
+        self.presentErrorAlert(completionMessage!)
       } else {
         dispatch_async(dispatch_get_main_queue(), { () in
           self.tableView.reloadData()
         })
       }
     }
+  }
+  
+  func presentErrorAlert(message: String) {
+    let errorAlert = UIAlertController(title: AlertConstants.AlertActionTitleError, message: message, preferredStyle: .Alert)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    errorAlert.addAction(cancel)
+    dispatch_async(dispatch_get_main_queue(), { () in
+      self.presentViewController(errorAlert, animated: true, completion: nil)
+    })
   }
   
   func logout() {

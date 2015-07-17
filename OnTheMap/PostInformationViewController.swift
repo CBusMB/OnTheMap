@@ -20,6 +20,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         ParseAPISession.queryStudentLocationSession(byUserId: NSUserDefaults.standardUserDefaults().stringForKey("userId")!) { (success, objectIDs) in
           if success {
             self.studentObjectIDs = objectIDs
+          } else {
+            self.presentNetworkErrorAlert()
           }
         }
       }
@@ -27,6 +29,15 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   var studentObjectIDs: [String]?
+  
+  private func presentNetworkErrorAlert() {
+    let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.NetworkErrorMessage, preferredStyle: .Alert)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleOK, style: .Default) { Void in
+      self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    errorActionSheet.addAction(cancel)
+    presentViewController(errorActionSheet, animated: true, completion:nil)
+  }
   
   @IBOutlet weak var mapView: MKMapView! {
     didSet {
@@ -120,7 +131,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     button.hidden = hiddenOnLoad
   }
   
-  // MARK: Lifecycle
+  // MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
     let singleTap = UITapGestureRecognizer(target: self, action: "singleTap:")
@@ -135,7 +146,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
-  // MARK: MKMapView
+  // MARK: - MKMapView
   @IBAction func searchForStudentLocation() {
     geocodeUserLocation()
   }
@@ -144,7 +155,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     let geocoder = CLGeocoder()
     geocoder.geocodeAddressString(locationTextView.text, completionHandler: { (placemark, error) in
       if error != nil {
-        self.presentErrorAlert()
+        self.presentGeocodeErrorAlert()
       } else {
         if let placemarks = placemark as? [CLPlacemark] {
           if placemarks.count > 1 {
@@ -154,13 +165,13 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
             self.addUserLocationAnnotationToMap(atLocation: location)
           }
         } else {
-          self.presentErrorAlert()
+          self.presentGeocodeErrorAlert()
         }
       }
     })
   }
   
-  private func presentErrorAlert() {
+  private func presentGeocodeErrorAlert() {
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
     let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
@@ -169,8 +180,11 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     presentViewController(errorActionSheet, animated: true, completion:nil)
   }
   
+  /**
+  Display an action sheet to let the user choose the best location for what the CLGeocoder returned
+  :param: placemarks    An array of CLPlacemarks returned from the CLGeocoder
+  */
   private func presentLocationChoiceActionSheet(forLocations placemarks: [CLPlacemark]) {
-    // display (up to) the top 3 location mataches to the user and let them choose the best one
     let locationChoiceActionSheet = UIAlertController(title: AlertConstants.AlertActionTitleMultipleMatches, message: AlertConstants.AlertActionMessageChooseLocation, preferredStyle: .ActionSheet)
     
     let firstLocationAddressLines = placemarks[0].addressDictionary[AlertConstants.AlertActionFormattedAddressLines] as! [String]
@@ -211,34 +225,38 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     updateUIForMapView()
   }
   
-  // MARK: Post / Put calls to web service
+  // MARK: - POST / PUT calls to web service
   @IBAction func submitLocationToServer() {
     if let overwrite = userWantsToOverwriteLocation {
-      println("\(overwrite)")
       // create the parameters needed to post / put to the server
       let studentInformationWithoutObjectIdToPost = createStudentInformationDictionaryWithoutObjectId()
-      if overwrite {
+      if overwrite { // call the PUT method
         updateStudentLocationOnServer(fromStudentInformation: studentInformationWithoutObjectIdToPost)
-      } else {
+      } else { // call the POST method
         createNewStudentLocationOnServer(fromStudentInformation: studentInformationWithoutObjectIdToPost)
       }
     }
   }
   
+  /**
+  Prepare the parameters needed for the PUT session and then call the appropriate ParseAPI session method
+  
+  :param: studentInformation    An NSMutableDictionary containing the nessecary paramenters for the PUT session
+  */
   private func updateStudentLocationOnServer(fromStudentInformation studentInformation: NSMutableDictionary) {
     if studentInformation[ParseAPIConstants.MediaURLKey] as! String == AttributedStringAttributes.UrlPlaceholder {
       displayUrlRequiredAlert()
     } else {
+      /// The objectId for the object to be updated
       let objectId = studentObjectIDs?.last
-      // make a new NSDictionary with the objectID included
-      let studentInformationWithObjectID = createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: objectId!)
-      
       // add the "/" before the objectId and then add it to the Parse URL
       let objectIdForURL = "/" + objectId!
       let putSessionURL = ParseAPIConstants.ParseURL + objectIdForURL
-      ParseAPISession.putStudentLocationSession(studentInformationWithObjectID, urlWithObjectId: putSessionURL) { (success, completionMessage) in
+      ParseAPISession.putStudentLocationSession(studentInformation, urlWithObjectId: putSessionURL) { (success, completionMessage) in
         if success {
-          // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
+          /// An NSDictionary with the objectID included.  This is not needed for the PUT parameters but it is used to identify the correct object in the local data model
+          let studentInformationWithObjectID = self.createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: objectId!)
+          /// A StudentLocation struct created from the studentInformationWithObjectID NSDictionary
           let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
           // remove any locations in the collection that have the same objectID as the location
           // that was just posted
@@ -253,19 +271,25 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
+  /**
+  Prepare the parameters needed for the POST session and then call the appropriate ParseAPI session method
+  
+  :param: studentInformation    An NSMutableDictionary containing the nessecary paramenters for the POST session
+  */
   private func createNewStudentLocationOnServer(fromStudentInformation studentInformation: NSMutableDictionary) {
     if studentInformation[ParseAPIConstants.MediaURLKey] as! String == AttributedStringAttributes.UrlPlaceholder {
       displayUrlRequiredAlert()
     } else {
       ParseAPISession.postStudentLocationSession(studentInformation) { (success, completionMessage) in
         if success {
-          let userId = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
-          ParseAPISession.queryStudentLocationSession(byUserId: userId) { (querySuccess, objectIDs) in
+          let uniqueKey = studentInformation[ParseAPIConstants.UniqueKeyKey] as! String
+          ParseAPISession.queryStudentLocationSession(byUserId: uniqueKey) { (querySuccess, objectIDs) in
             if querySuccess {
+              /// The objectId for the object that was just POSTed
               let justPostedObjectID = objectIDs!.last
-              // make a new NSDictionary with the just posted objectID included
+              /// An NSDictionary with the objectID included.  This is not needed for the POST parameters but it is used to identify the correct object in the local data model
               let studentInformationWithObjectID = self.createStudentInformationDictionary(fromDictionary: studentInformation, withObjectId: justPostedObjectID!)
-              // create a StudentLocation struct from the studentInformationWithObjectID NSDictionary
+              /// A StudentLocation struct created from the studentInformationWithObjectID NSDictionary
               let studentLocation = StudentLocation(nameAndLocation: studentInformationWithObjectID)
               // add the StudentLocation to the beginning of the collection so that it will be at the top of the table view
               self.mapLocations.addLocationToBeginningOfCollection(studentLocation)
@@ -279,12 +303,24 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
+  /**
+  Create an NSDictionary containing the parameters needed to POST or PUT the student location information plus an objectId parameter used in the local data model
+  
+  :param: studentInformation    An NSMutableDictionary containing the nessecary paramenters for the POST/PUT session
+  :param: objectId    the objectId of the object we want to work with
+  :returns: A new NSDictionary containing key value pairs that mirror what is returned in JSON from the web service
+  */
   private func createStudentInformationDictionary(fromDictionary studentInformation: NSMutableDictionary, withObjectId objectId: String) -> NSDictionary {
     studentInformation.setValue(objectId, forKey: ParseAPIConstants.ObjectIDKey)
     let studentInformationWithObjectID = NSDictionary(dictionary: studentInformation)
     return studentInformationWithObjectID
   }
   
+  /**
+  Create an NSMutableDictionary containing the parameters needed to POST or PUT the student location information
+  
+  :returns: A new NSMutableDictionary containing key value pairs required for the POST or PUT session
+  */
   private func createStudentInformationDictionaryWithoutObjectId() -> NSMutableDictionary {
     // get persisted values from NSUserDefaults
     let defaults = NSUserDefaults.standardUserDefaults()
