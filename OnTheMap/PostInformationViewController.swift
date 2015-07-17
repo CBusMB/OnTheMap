@@ -46,6 +46,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
     }
   }
   
+  @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+  
   @IBOutlet weak var locationQuestionTopLabel: UILabel! {
     didSet {
       let text = NSAttributedString(string: AttributedStringAttributes.LocationQuestionTop, attributes: AttributedStringAttributes.TopLabelsTextAttributes)
@@ -152,6 +154,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   private func geocodeUserLocation() {
+    activityIndicator.startAnimating()
     let geocoder = CLGeocoder()
     geocoder.geocodeAddressString(locationTextView.text, completionHandler: { (placemark, error) in
       if error != nil {
@@ -172,6 +175,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
   }
   
   private func presentGeocodeErrorAlert() {
+    activityIndicator.stopAnimating()
     let errorActionSheet = UIAlertController(title: ErrorMessages.GenericErrorMessage, message: ErrorMessages.GeocodingErrorMessage, preferredStyle: .Alert)
     let tryAgain = UIAlertAction(title: AlertConstants.AlertActionTitleResubmit, style: .Default, handler: { Void in self.geocodeUserLocation() })
     errorActionSheet.addAction(tryAgain)
@@ -207,7 +211,8 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
       locationChoiceActionSheet.addAction(thirdLocation)
     }
     
-    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: AlertConstants.AlertActionTitleCancel, style: .Cancel, handler: { Void in
+      self.activityIndicator.stopAnimating() })
     locationChoiceActionSheet.addAction(cancel)
     
     presentViewController(locationChoiceActionSheet, animated: true, completion: nil)
@@ -380,6 +385,7 @@ class PostInformationViewController: UIViewController, MKMapViewDelegate, UIText
         self.urlTextView.hidden = false
         self.browseWebButton.hidden = false
         self.mapView.hidden = false
+        self.activityIndicator.stopAnimating()
         }
     }
   }

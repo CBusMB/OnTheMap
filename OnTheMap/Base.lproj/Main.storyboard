@@ -298,13 +298,18 @@
                                 <rect key="frame" x="151" y="36" width="299" height="97"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <attributedString key="attributedText"/>
-                                <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
+                                <textInputTraits key="textInputTraits" keyboardType="URL" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                             </textView>
+                            <activityIndicatorView hidden="YES" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="bhF-jM-6j2">
+                                <rect key="frame" x="282" y="340" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="trailing" secondItem="STz-1m-Qz8" secondAttribute="trailing" id="2IS-Y3-OQl"/>
                             <constraint firstItem="cvl-cA-kHb" firstAttribute="top" secondItem="ixi-bp-JCu" secondAttribute="bottom" constant="16" id="51b-dx-rjl"/>
+                            <constraint firstItem="bhF-jM-6j2" firstAttribute="top" secondItem="OVT-xe-9ub" secondAttribute="bottom" constant="8" symbolic="YES" id="8Xs-hM-wWU"/>
+                            <constraint firstItem="OVT-xe-9ub" firstAttribute="centerX" secondItem="bhF-jM-6j2" secondAttribute="centerX" constant="0.5" id="BIY-kO-qpt"/>
                             <constraint firstItem="O5g-Ez-BvX" firstAttribute="leading" secondItem="dlG-OK-aOu" secondAttribute="leading" id="Czm-Sg-XX2"/>
                             <constraint firstItem="dlG-OK-aOu" firstAttribute="top" secondItem="STz-1m-Qz8" secondAttribute="bottom" constant="-11" id="F35-qn-0W2"/>
                             <constraint firstItem="Ze0-yd-Ipa" firstAttribute="top" secondItem="dlG-OK-aOu" secondAttribute="bottom" constant="-76" id="HvL-wK-Zqi"/>
@@ -324,6 +329,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="bhF-jM-6j2" id="ROC-cG-5c7"/>
                         <outlet property="bottomView" destination="O5g-Ez-BvX" id="hhB-pa-X4s"/>
                         <outlet property="browseWebButton" destination="3dd-aD-1qB" id="h2F-Bc-eki"/>
                         <outlet property="locationQuestionBottomLabel" destination="f0W-OX-XJV" id="1zF-z9-Wu7"/>
