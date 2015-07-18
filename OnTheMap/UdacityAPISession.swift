@@ -16,7 +16,7 @@ class UdacityAPISession
   :param: udacityParameters A Dictionary containing the parameters required to login to Udacity
   :param: completionHandler Returns a Bool to indicate the success of the login, a String message, and the Udacity userId
   */
-    class func udacityLoginSession(udacityParameters: [String : [String : String]], completionHandler: (success: Bool, message: String?, userId: String?) -> Void) {
+  class func udacityLoginSession(udacityParameters: [String : [String : String]], completionHandler: (success: Bool, message: String?, userId: String?) -> Void) {
     let request = NSMutableURLRequest(URL: NSURL(string: UdacityAPIConstants.UdacitySessionURL)!)
     request.HTTPMethod = UdacityAPIConstants.HttpMethod
     request.addValue(UdacityAPIConstants.ApplicationJSON, forHTTPHeaderField: UdacityAPIConstants.HttpHeaderFieldAccept)
