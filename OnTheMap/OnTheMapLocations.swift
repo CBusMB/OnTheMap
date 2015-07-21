@@ -11,12 +11,7 @@ import Foundation
 class OnTheMapLocations
 {
   /// Singleton.  Use OnTheMapLocations.sharedCollection to access public properties and methods
-  class var sharedCollection: OnTheMapLocations {
-    struct LocationsSingleton {
-      static let instance: OnTheMapLocations = OnTheMapLocations()
-    }
-    return LocationsSingleton.instance
-  }
+  static let sharedCollection = OnTheMapLocations()
   
   // private array, accessed from locations
   private var _locations = [StudentLocation]()
@@ -24,16 +19,9 @@ class OnTheMapLocations
   var locations: [StudentLocation] {
     get {
       return _locations
+    } set {
+      _locations = newValue
     }
-  }
-  
-  /**
-  Adds a StudentLocation struct to the locations array
-  
-  :param: location    The StudentLocation Array to add
-  */
-  func addLocationToCollection(location: StudentLocation) {
-    _locations.append(location)
   }
   
   /**
@@ -59,14 +47,7 @@ class OnTheMapLocations
   :returns: Bool indicating if the matching uniqueKey was found
   */
   func checkLocationsForMatchingUniqueId(uniqueId: String) -> Bool {
-    var match = false
-    for student in _locations {
-      if uniqueId == student.uniqueKey {
-        match = true
-        break
-      }
-    }
-    return match
+    return _locations.filter { $0.uniqueKey == uniqueId }.count > 0
   }
   
   /**
@@ -75,11 +56,7 @@ class OnTheMapLocations
   :param: objectID    the objectID of a StudentLocation
   */
   func removeStudentLocationForObjectID(objectID: String) {
-    for var i = 0; i < _locations.count; i++ {
-      if objectID == _locations[i].objectID {
-        _locations.removeAtIndex(i)
-      }
-    }
+    _locations = _locations.filter { $0.objectID != objectID }
   }
   
 }

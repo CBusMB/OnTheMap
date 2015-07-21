@@ -48,11 +48,9 @@ class ParseAPISession
   :param: studentNamesAndLocations   The dictionary parsed from the web service's JSON response
   */
   private class func createOnTheMapLocations(fromDataSource studentNamesAndLocations: [NSDictionary]) {
-    let locations = OnTheMapLocations.sharedCollection
-    for nameAndLocation in studentNamesAndLocations {
-      let studentLocation = StudentLocation(nameAndLocation: nameAndLocation)
-      locations.addLocationToCollection(studentLocation)
-    }
+    OnTheMapLocations.sharedCollection.locations = studentNamesAndLocations.map {
+      var studentInfo = StudentLocation(nameAndLocation: $0)
+      return studentInfo }
   }
   
   /**

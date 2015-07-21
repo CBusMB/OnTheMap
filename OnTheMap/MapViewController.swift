@@ -83,13 +83,12 @@ class MapViewController: UIViewController, MKMapViewDelegate
   }
   
   private func addLocationPinsToMap() {
-    annotations.removeAll(keepCapacity: false)
-    for location in mapLocations.locations {
-      let annotation = MKPointAnnotation()
-      annotation.coordinate = location.coordinate
-      annotation.title = "\(location.firstName) \(location.lastName)"
-      annotation.subtitle = location.mediaURL
-      annotations.append(annotation)
+    annotations = mapLocations.locations.map {
+      var annotation = MKPointAnnotation()
+      annotation.coordinate = $0.coordinate
+      annotation.title = "\($0.firstName) \($0.lastName)"
+      annotation.subtitle = $0.mediaURL
+      return annotation
     }
     mapView.addAnnotations(annotations)
   }
